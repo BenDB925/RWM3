@@ -73,8 +73,6 @@ void Game::Update()
 {
 	_frameCounter.update(m_p_Renderer);
 
-	SDL_GetMouseState(&_mouseX, &_mouseY);
-
 	_particleSys.update();
 }
 
@@ -96,6 +94,7 @@ void Game::HandleEvents()
 	while (SDL_PollEvent(&event))
 	{
 		switch(event.type)
+		{
 			case SDL_KEYDOWN:
 				switch(event.key.keysym.sym)
 				{
@@ -103,6 +102,14 @@ void Game::HandleEvents()
 					m_running = false;
 					break;
 				}
+			case SDL_MOUSEBUTTONDOWN:
+				int mouseX;
+				int mouseY;
+				SDL_GetMouseState(&mouseX, &mouseY);
+				_particleSys.followMouse(mouseX, mouseY);
+				break;
+		}
+
 	}
 }
 

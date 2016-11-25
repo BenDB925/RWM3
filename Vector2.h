@@ -5,7 +5,7 @@ class Vector2
 {
 public:
 	Vector2(float pX = 0, float pY = 0) : x(pX), y(pY) { }
-	~Vector2();
+	~Vector2(){}
 
 	float Vector2::Length() const
 	{

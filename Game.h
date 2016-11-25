@@ -26,8 +26,5 @@ private:
 
 	FramerateCounter _frameCounter;
 	ParticleManager _particleSys;
-
-	int _mouseX;
-	int _mouseY;
 };
 #endif

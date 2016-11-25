@@ -21,6 +21,8 @@ private:
 	std::vector<ParticleObj> _particleList;
 	Vector2 _position;
 	Vector2 _velocity;
+	float _accel;
+	Vector2 _goal;
 	Vector2 _particleBaseVel;
 	Vector2 _particleVelVariation;
 	Vector2 _particleSize;
