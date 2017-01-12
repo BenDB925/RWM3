@@ -2,7 +2,7 @@
 #include <iostream>
 #include <thread>
 #include "TextureLoader.h"
-#include "ParticleManager.h"
+#include "TextureParticleManager.h"
 
 
 using namespace std;
@@ -59,21 +59,32 @@ void Game::LoadContent()
 {
 	DEBUG_MSG("Loading Content");
 
-	SDL_Texture* smellText = TextureLoader::loadTexture("assets/stinkyParticle.png", m_p_Renderer);
 
-	Vector2 pos = Vector2(300, 450);
-	Vector2 vel = Vector2(0, -10);
-	Vector2 velVar = Vector2(3, 3);
-	Vector2 minMaxTTL = Vector2(2.5f, 15);
+	TextureParticleManager::ParticleSettings settings = TextureParticleManager::ParticleSettings();
+	//position of the particle manager
+	_mousePos = new Vector2(0, 0);
+	settings._positionToParentTo = _mousePos;
+	settings._offsetFromParent = Vector2(0, 0);
+	//initial velocity of the particles
+	settings._velocity = Vector2(0, 0);
+	//the variation of velocity of the particles so that they don't all go in the same direction
+	settings._velVariation = Vector2(0.2, 0.2);
+	//the min/max time to live
+	settings._timeToLive = Vector2(2, 2);
+	//the time between particles being emitted
+	settings._emissionRate = 0.00001f;
 
-	_particleSys = ParticleManager(pos, vel, velVar, 2000, minMaxTTL, smellText);
+	settings._texture = TextureLoader::loadTexture("assets/particle.png", m_p_Renderer);
+
+	_particleSys = TextureParticleManager(settings);
 }
 
 void Game::Update()
 {
-	_frameCounter.update(m_p_Renderer);
 
-	_particleSys.update();
+
+	_frameCounter.update(m_p_Renderer);
+	_particleSys.update(_frameCounter._DT);
 }
 
 void Game::Render()
@@ -93,6 +104,14 @@ void Game::HandleEvents()
 
 	while (SDL_PollEvent(&event))
 	{
+
+
+		int mouseX;
+		int mouseY;
+		SDL_GetMouseState(&mouseX, &mouseY);
+		_mousePos->x = mouseX;
+		_mousePos->y = mouseY;
+
 		switch(event.type)
 		{
 			case SDL_KEYDOWN:
@@ -103,10 +122,10 @@ void Game::HandleEvents()
 					break;
 				}
 			case SDL_MOUSEBUTTONDOWN:
-				int mouseX;
-				int mouseY;
-				SDL_GetMouseState(&mouseX, &mouseY);
-				_particleSys.followMouse(mouseX, mouseY);
+				break;
+
+			case SDL_QUIT:
+				m_running = false;
 				break;
 		}
 

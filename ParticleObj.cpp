@@ -20,12 +20,11 @@ ParticleObj::ParticleObj(Vector2 pPos, Vector2 pSize, Vector2 pVel, float pTimeT
 
 ParticleObj::~ParticleObj()
 {
+	
 }
 
 void ParticleObj::update()
 {
-	_velocity.x *= 1.00002f;
-
 	_timeAlive += FramerateCounter::_DT;
 	_position.x += _velocity.x * FramerateCounter::_DT;
 	_position.y += _velocity.y * FramerateCounter::_DT;
@@ -40,5 +39,7 @@ void ParticleObj::render(SDL_Renderer * pRenderer)
 {
 	_rect.x = _position.x;
 	_rect.y = _position.y;
+	SDL_SetTextureAlphaMod(_texture, 255 - ((_timeAlive  / _timeToLive) * 255));
+
 	SDL_RenderCopy(pRenderer, _texture, NULL, &_rect);
 }

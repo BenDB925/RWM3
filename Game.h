@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include "FramerateCounter.h"
-#include "ParticleManager.h"
+#include "TextureParticleManager.h"
 
 class Game
 {
@@ -20,11 +20,12 @@ public:
 	bool IsRunning();
 	void CleanUp();
 private:
+	Vector2 * _mousePos;
 	bool m_running;
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;
 
 	FramerateCounter _frameCounter;
-	ParticleManager _particleSys;
+	TextureParticleManager _particleSys;
 };
 #endif
