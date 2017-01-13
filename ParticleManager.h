@@ -1,8 +1,9 @@
 #pragma once
 #include <vector>
 #include "ParticleObj.h"
+#include "Shape.h"
 
-class ParticleMan
+class ParticleManager
 {
 public:
 
@@ -15,15 +16,16 @@ public:
 		float _emissionRate;
 		Vector2 _timeToLive;
 		SDL_Texture * _texture;
+		Shape::ShapeType _shapeType;
 	};
 
 	static ParticleSettings _ROCKET_THRUSTER_PRESET;
 	static ParticleSettings _FOOTSTEPS_PRESET;
 
 
-	ParticleMan() {}
-	ParticleMan(ParticleSettings pSettings);
-	~ParticleMan();
+	ParticleManager() {}
+	ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRenderer);
+	~ParticleManager();
 
 	void update(float pDT);
 	void followMouse(int pMouseX, int pMouseY);
@@ -48,5 +50,7 @@ private:
 	Vector2 _particleTimeToLive;
 	float _emissionRate;
 	float _timeSinceEmit;
+	Shape::ShapeType _shapeType;
+	SDL_Renderer * _renderer;
 };
 

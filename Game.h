@@ -2,7 +2,7 @@
 #define GAME_H
 #include <SDL.h>
 #include "FramerateCounter.h"
-#include "ParticleMan.h"
+#include "ParticleManager.h"
 #include "Vector2.h"
 
 class Game
@@ -25,7 +25,8 @@ private:
 	SDL_Renderer* _renderer;
 	SDL_Surface * _surface;
 
+
 	FramerateCounter _frameCounter;
-	ParticleMan _particleSys;
+	ParticleManager _particleSys;
 };
 #endif

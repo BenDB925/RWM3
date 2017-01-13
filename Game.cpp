@@ -2,7 +2,7 @@
 #include <iostream>
 #include <thread>
 #include "TextureLoader.h"
-#include "ParticleMan.h"
+#include "ParticleManager.h"
 #include <SDL2_gfxPrimitives.h>
 #include "Debug.h"
 
@@ -64,7 +64,7 @@ void Game::LoadContent()
 	DEBUG_MSG("Loading Content");
 
 
-	ParticleMan::ParticleSettings settings = ParticleMan::ParticleSettings();
+	ParticleManager::ParticleSettings settings = ParticleManager::ParticleSettings();
 	//position of the particle manager
 	_mousePos = new Vector2(0, 0);
 	settings._positionToParentTo = _mousePos;
@@ -78,9 +78,10 @@ void Game::LoadContent()
 	//the time between particles being emitted
 	settings._emissionRate = 0.00001f;
 
-	settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
+	//settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
+	settings._shapeType =  Shape::ShapeType::Triangle;
 
-	_particleSys = ParticleMan(settings);
+	_particleSys = ParticleManager(settings, _renderer);
 }
 
 void Game::Update()
@@ -93,9 +94,9 @@ void Game::Update()
 
 void Game::Render()
 {
+	SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
 	SDL_RenderClear(_renderer);
 
-	//int result1 = filledCircleColor(_renderer, 0, 0, 5000, 0xFF0000FF);
 
 	filledTrigonColor(_renderer,
 		0, 0,
