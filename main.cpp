@@ -6,10 +6,10 @@
 #include "Debug.h"
 
 
-#pragma comment(lib,"SDL.lib") 
-#pragma comment(lib, "SDL_image.lib")
-#pragma comment(lib,"SDL_gfx.dll") 
-#pragma comment(lib, "SDL_gfx.lib")
+#pragma comment(lib,"SDL2.lib") 
+#pragma comment(lib, "SDL2_image.lib")
+#pragma comment(lib,"SDL2_gfx.dll") 
+#pragma comment(lib, "SDL2_gfx.lib")
 
 using namespace std;
 

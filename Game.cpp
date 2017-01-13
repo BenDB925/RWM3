@@ -2,9 +2,9 @@
 #include <iostream>
 #include <thread>
 #include "TextureLoader.h"
-#include "ParticleManager.h"
-#include <SDL_gfxPrimitives.h>
-
+#include "ParticleMan.h"
+#include <SDL2_gfxPrimitives.h>
+#include "Debug.h"
 
 
 using namespace std;
@@ -64,7 +64,7 @@ void Game::LoadContent()
 	DEBUG_MSG("Loading Content");
 
 
-	ParticleManager::ParticleSettings settings = ParticleManager::ParticleSettings();
+	ParticleMan::ParticleSettings settings = ParticleMan::ParticleSettings();
 	//position of the particle manager
 	_mousePos = new Vector2(0, 0);
 	settings._positionToParentTo = _mousePos;
@@ -80,16 +80,12 @@ void Game::LoadContent()
 
 	settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
 
-	_particleSys = ParticleManager(settings);
+	_particleSys = ParticleMan(settings);
 }
 
 void Game::Update()
 {
-	//filledTrigonRGBA(_surface,
-	//	200, 200,
-	//	300, 50,
-	//	400, 200,
-	//	0, 0, 255, 255);
+
 
 	_frameCounter.update(_renderer);
 	_particleSys.update(_frameCounter._DT);
@@ -98,6 +94,55 @@ void Game::Update()
 void Game::Render()
 {
 	SDL_RenderClear(_renderer);
+
+	//int result1 = filledCircleColor(_renderer, 0, 0, 5000, 0xFF0000FF);
+
+	filledTrigonColor(_renderer,
+		0, 0,
+		50, 50,
+		100, 150,
+		0xFF0000FF);	
+	
+	filledTrigonColor(_renderer,
+			130, 160,
+			540, 50,
+			100, 350,
+			0xFF0000FF);
+
+
+	filledTrigonRGBA(_renderer, 
+		300, 300, 
+		400, 400, 
+		380, 360, 
+		255, 0, 255, 255);
+
+	filledPieRGBA(_renderer,
+		500, 500,
+		200,
+		30, 270,
+		0, 0, 200, 255);
+
+
+	filledCircleRGBA(_renderer,
+		500, 500,
+		200,
+		0, 0, 200, 255);
+
+	//filledTrigonColor(_renderer,
+	//	200, 
+	//	50,
+	//	100,
+	//	120,
+	//	140,
+	//	160,
+	//	0xa1f442);
+
+
+	filledCircleColor(_renderer,
+		200,
+		50,
+		100,
+		0x00000);
 
 	//draw
 	_particleSys.render(_renderer);
