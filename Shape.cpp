@@ -1,14 +1,16 @@
 #include "Shape.h"
 #include <SDL2_gfxPrimitives.h>
+#include <ostream>
 
 
-Shape::Shape(Vector2 pPos, std::vector<Vector2> pVerts, ShapeType pType, SDL_Renderer * pRenderer, SDL_Color pColour)
+Shape::Shape(Vector2 pPos, std::vector<Vector2> pVerts, ShapeType pType, SDL_Renderer * pRenderer, SDL_Color pColour, float pRotSpeed)
 	:_angle(0),
 	_position(pPos),
 	_vertices(pVerts),
 	_type(pType),
 	_renderer(pRenderer),
-	_colour(pColour)
+	_colour(pColour),
+	_rotSpeed(pRotSpeed)
 {
 }
 
@@ -18,35 +20,60 @@ Shape::~Shape()
 
 void Shape::Draw()
 {
+	short * x = nullptr;
+	short * y = nullptr;
+
+	int numVerts;
+
 	switch (_type)
 	{
 	case Triangle:
+		numVerts = 3;
+		break;
 
-		filledTrigonRGBA(_renderer,
-			_vertices.at(0).x, _vertices.at(0).y,
-			_vertices.at(1).x, _vertices.at(1).y,
-			_vertices.at(2).x, _vertices.at(2).y,
-			_colour.r, _colour.g, _colour.b, _colour.a);
+	case Square:
+		numVerts = 4;
+		break;
+
+	case Pentagon:
+		numVerts = 5;
+		break;
+	case Star:
+		numVerts = 10;
+		break;
+
+	case NULL_SHAPE: 
 		break;
 
 	default:
 		break;
 	}
-}
 
-void Shape::Update(Vector2 _velocity)
-{
-	for (int i = 0; i < _vertices.size(); ++i)
+	x = new short[numVerts];
+	y = new short[numVerts];
+
+	for (int i = 0; i < numVerts; ++i)
 	{
-		Vector2 pos = _vertices.at(i);
-
-		_vertices.at(i) = pos + _velocity;
+		x[i] = _vertices.at(i).x + _position.x;
+		y[i] = _vertices.at(i).y + _position.y;
 	}
+
+	filledPolygonRGBA(_renderer,
+		x,
+		y,
+		numVerts,
+		_colour.r, _colour.g, _colour.b, _colour.a);
 }
 
-void Shape::Rotate(float pAngle)
+void Shape::Update(Vector2 _velocity, float pDT)
 {
-	_angle += pAngle;
+	_position = _position + _velocity;
+	Rotate(pDT);
+}
+
+void Shape::Rotate(float pDT)
+{
+	_angle = _rotSpeed;
 
 	for (int i = 0; i < _vertices.size(); ++i)
 	{

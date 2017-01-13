@@ -17,6 +17,7 @@ public:
 		Vector2 _timeToLive;
 		SDL_Texture * _texture;
 		Shape::ShapeType _shapeType;
+		float _rotationMaxSpeed;
 	};
 
 	static ParticleSettings _ROCKET_THRUSTER_PRESET;
@@ -42,15 +43,15 @@ private:
 	Vector2 _offset;
 	Vector2 _velocity;
 	float _accel;
-	Vector2 _goal;
 	Vector2 _particleBaseVel;
 	Vector2 _particleVelVariation;
-	Vector2 _particleSize;
+	float _particleSize;
 	SDL_Texture * _particleTexture;
 	Vector2 _particleTimeToLive;
 	float _emissionRate;
 	float _timeSinceEmit;
 	Shape::ShapeType _shapeType;
 	SDL_Renderer * _renderer;
+	float _rotationMaxSpeed;
 };
 

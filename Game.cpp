@@ -76,10 +76,12 @@ void Game::LoadContent()
 	//the min/max time to live
 	settings._timeToLive = Vector2(2, 2.5f);
 	//the time between particles being emitted
-	settings._emissionRate = 0.00001f;
+	settings._emissionRate = 0.001f;
 
 	//settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
-	settings._shapeType =  Shape::ShapeType::Triangle;
+	settings._shapeType =  Shape::ShapeType::Star;
+
+	settings._rotationMaxSpeed = 0.05f;
 
 	_particleSys = ParticleManager(settings, _renderer);
 }
@@ -97,53 +99,6 @@ void Game::Render()
 	SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
 	SDL_RenderClear(_renderer);
 
-
-	filledTrigonColor(_renderer,
-		0, 0,
-		50, 50,
-		100, 150,
-		0xFF0000FF);	
-	
-	filledTrigonColor(_renderer,
-			130, 160,
-			540, 50,
-			100, 350,
-			0xFF0000FF);
-
-
-	filledTrigonRGBA(_renderer, 
-		300, 300, 
-		400, 400, 
-		380, 360, 
-		255, 0, 255, 255);
-
-	filledPieRGBA(_renderer,
-		500, 500,
-		200,
-		30, 270,
-		0, 0, 200, 255);
-
-
-	filledCircleRGBA(_renderer,
-		500, 500,
-		200,
-		0, 0, 200, 255);
-
-	//filledTrigonColor(_renderer,
-	//	200, 
-	//	50,
-	//	100,
-	//	120,
-	//	140,
-	//	160,
-	//	0xa1f442);
-
-
-	filledCircleColor(_renderer,
-		200,
-		50,
-		100,
-		0x00000);
 
 	//draw
 	_particleSys.render(_renderer);
