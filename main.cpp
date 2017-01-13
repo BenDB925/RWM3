@@ -1,9 +1,15 @@
 #include <SDL.h>
-#include <SDL_image.h>
 #include <iostream>
 #include "Game.h"
 #include <thread>
 #include <string>
+#include "Debug.h"
+
+
+#pragma comment(lib,"SDL.lib") 
+#pragma comment(lib, "SDL_image.lib")
+#pragma comment(lib,"SDL_gfx.dll") 
+#pragma comment(lib, "SDL_gfx.lib")
 
 using namespace std;
 

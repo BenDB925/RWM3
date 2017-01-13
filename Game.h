@@ -1,10 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
-#include "Debug.h"
 #include <SDL.h>
-#include <SDL_image.h>
 #include "FramerateCounter.h"
-#include "TextureParticleManager.h"
+#include "ParticleManager.h"
 
 class Game
 {
@@ -22,10 +20,11 @@ public:
 private:
 	Vector2 * _mousePos;
 	bool m_running;
-	SDL_Window* m_p_Window;
-	SDL_Renderer* m_p_Renderer;
+	SDL_Window* _window;
+	SDL_Renderer* _renderer;
+	SDL_Surface * _surface;
 
 	FramerateCounter _frameCounter;
-	TextureParticleManager _particleSys;
+	ParticleManager _particleSys;
 };
 #endif
