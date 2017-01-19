@@ -5,6 +5,10 @@
 class Vector2
 {
 public:
+
+	float x;
+	float y;
+
 	Vector2(float pX = 0, float pY = 0) : x(pX), y(pY) { }
 	~Vector2() {}
 
@@ -52,7 +56,5 @@ public:
 		return Vector2(x + pVec.x, y + pVec.y);
 	}
 
-	float x;
-	float y;
 };
 

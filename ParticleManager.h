@@ -36,7 +36,7 @@ private:
 	void SpawnParticle(Vector2 pDir);
 
 
-	std::vector<ParticleObj> _particleList;
+	std::vector<ParticleObj *> _particleList;
 	std::vector<Vector2> _velocityList;
 	Vector2 * _positionToParentTo;
 	Vector2 _position;

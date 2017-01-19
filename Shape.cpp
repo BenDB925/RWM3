@@ -57,12 +57,15 @@ void Shape::Draw()
 		x[i] = _vertices.at(i).x + _position.x;
 		y[i] = _vertices.at(i).y + _position.y;
 	}
-
+	
 	filledPolygonRGBA(_renderer,
 		x,
 		y,
 		numVerts,
 		_colour.r, _colour.g, _colour.b, _colour.a);
+		
+	delete[] x;
+	delete[] y;
 }
 
 void Shape::Update(Vector2 _velocity, float pDT)

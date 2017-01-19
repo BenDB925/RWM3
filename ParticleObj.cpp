@@ -21,7 +21,8 @@ ParticleObj::ParticleObj(ParticleObjSettings pSettings)
 
 ParticleObj::~ParticleObj()
 {
-
+	delete _shape;
+	SDL_DestroyTexture(_texture);
 }
 
 void ParticleObj::update()
