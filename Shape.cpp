@@ -3,13 +3,13 @@
 #include <ostream>
 
 
-Shape::Shape(Vector2 pPos, std::vector<Vector2> pVerts, ShapeType pType, SDL_Renderer * pRenderer, SDL_Color pColour, float pRotSpeed)
-	:_angle(0),
+Shape::Shape(Vector2 pPos, std::vector<Vector2> pVerts, ShapeType pType, SDL_Renderer * pRenderer, float pRotSpeed)
+	:
 	_position(pPos),
 	_vertices(pVerts),
+	_angle(0),
 	_type(pType),
 	_renderer(pRenderer),
-	_colour(pColour),
 	_rotSpeed(pRotSpeed)
 {
 }
@@ -42,10 +42,12 @@ void Shape::Draw()
 		numVerts = 10;
 		break;
 
-	case NULL_SHAPE: 
+	case NULL_SHAPE:
+		numVerts = -1;
 		break;
 
 	default:
+		numVerts = -1;
 		break;
 	}
 
@@ -85,4 +87,9 @@ void Shape::Rotate(float pDT)
 		_vertices.at(i).x = pos.x * cosf(_angle) - pos.y * sinf(_angle);
 		_vertices.at(i).y = pos.x * sinf(_angle) + pos.y * cosf(_angle);
 	}
+}
+
+void Shape::SetColour(SDL_Color pColour)
+{
+	_colour = pColour;
 }

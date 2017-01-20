@@ -3,23 +3,29 @@
 
 
 ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRenderer)
-	:_particleList(std::vector<ParticleObj *>()),
+	:_colourLerpingList(pSettings._coloursToLerp),
+	_particleList(std::vector<ParticleObj *>()),
 	_positionToParentTo(pSettings._positionToParentTo),
 	_velocity(0, 0),
+	_accel(0.5f),
 	_particleBaseVel(pSettings._velocity),
 	_particleVelVariation(pSettings._velVariation),
-	_particleTimeToLive(pSettings._timeToLive),
+	_particleSize(2),
 	_particleTexture(pSettings._texture),
-	_shapeType(pSettings._shapeType),
-	_particleSize(10),
-	_accel(0.5f),
 	_emissionRate(pSettings._emissionRate),
 	_timeSinceEmit(80),
+	_shapeType(pSettings._shapeType),
 	_renderer(pRenderer),
 	_rotationMaxSpeed(pSettings._rotationMaxSpeed)
-
 {
+	float timeToLiveTotal = 0;
 
+	for (int i = 0; i < _colourLerpingList.size(); ++i)
+	{
+		timeToLiveTotal += _colourLerpingList.at(i)._durationOfColour;
+	}
+
+	_particleTimeToLive = Vector2(timeToLiveTotal - pSettings._timeToLiveVariation, timeToLiveTotal);
 }
 
 ParticleManager::~ParticleManager()
@@ -71,6 +77,34 @@ void ParticleManager::update(float pDT)
 	}
 }
 
+SDL_Color ParticleManager::GetColour(float pAliveTime)
+{
+	float totalTime = 0;
+	int indexOfColour = 0;
+	while (totalTime < pAliveTime)
+	{
+		totalTime += _colourLerpingList.at(indexOfColour)._durationOfColour;
+		indexOfColour++;
+	}
+
+	if (indexOfColour == _colourLerpingList.size())
+		return{ 0, 0, 0, 0 };
+
+	indexOfColour -= 1;
+	if (indexOfColour < 0)
+		indexOfColour = 0;
+
+	float percentThroughThisLerp = 1 - ((totalTime - pAliveTime) / _colourLerpingList.at(indexOfColour)._durationOfColour);
+
+	float lerpedR = _colourLerpingList.at(indexOfColour)._colour.r + ((_colourLerpingList.at(indexOfColour + 1)._colour.r - _colourLerpingList.at(indexOfColour)._colour.r)) * percentThroughThisLerp;
+	float lerpedG = _colourLerpingList.at(indexOfColour)._colour.g + ((_colourLerpingList.at(indexOfColour + 1)._colour.g - _colourLerpingList.at(indexOfColour)._colour.g)) * percentThroughThisLerp;
+	float lerpedB = _colourLerpingList.at(indexOfColour)._colour.b + ((_colourLerpingList.at(indexOfColour + 1)._colour.b - _colourLerpingList.at(indexOfColour)._colour.b)) * percentThroughThisLerp;
+	float lerpedA = _colourLerpingList.at(indexOfColour)._colour.a + ((_colourLerpingList.at(indexOfColour + 1)._colour.a - _colourLerpingList.at(indexOfColour)._colour.a)) * percentThroughThisLerp;
+
+	return{ static_cast<Uint8>(lerpedR), static_cast<Uint8>(lerpedG), static_cast<Uint8>(lerpedB), static_cast<Uint8>(lerpedA) };
+}
+
+
 void ParticleManager::render(SDL_Renderer * pRenderer)
 {
 	for (int i = 0; i < _particleList.size(); i++)
@@ -112,31 +146,31 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 		switch (_shapeType)
 		{
 		case Shape::Triangle:
-			vertPositions.push_back(Vector2(0, 0));
-			vertPositions.push_back(Vector2(5, 0));
-			vertPositions.push_back(Vector2(0, 5));
+			vertPositions.push_back(Vector2(0 * _particleSize, 0 * _particleSize));
+			vertPositions.push_back(Vector2(5 * _particleSize, 0 * _particleSize));
+			vertPositions.push_back(Vector2(0 * _particleSize, 5 * _particleSize));
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Triangle, _renderer, SDL_Colour{ randR, randG, randB, 255 }, rotSpeed);
+			shape = new Shape(_position, vertPositions, Shape::ShapeType::Triangle, _renderer, rotSpeed);
 
 			break;
 
 		case Shape::Square:
-			vertPositions.push_back(Vector2(-5,	-5));
-			vertPositions.push_back(Vector2( 5,	-5));
-			vertPositions.push_back(Vector2( 5,	 5));
-			vertPositions.push_back(Vector2(-5,	 5));
+			vertPositions.push_back(Vector2(-5		* _particleSize,-5 * _particleSize));
+			vertPositions.push_back(Vector2(5		* _particleSize,-5 * _particleSize));
+			vertPositions.push_back(Vector2(5		* _particleSize, 5 * _particleSize));
+			vertPositions.push_back(Vector2(-5		* _particleSize, 5 * _particleSize));
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Square, _renderer, SDL_Colour{ randR, randG, randB, 255 }, rotSpeed);
+			shape = new Shape(_position, vertPositions, Shape::ShapeType::Square, _renderer, rotSpeed);
 			break;
 
 		case Shape::Pentagon:
-			vertPositions.push_back(Vector2( 0	* _particleSize,  0 * -_particleSize));
-			vertPositions.push_back(Vector2( 2	* _particleSize,  0 * -_particleSize));
-			vertPositions.push_back(Vector2(2.6	* _particleSize, 2 * -_particleSize));
-			vertPositions.push_back(Vector2(1	* _particleSize,  3.1 * -_particleSize));
-			vertPositions.push_back(Vector2( -0.64	* _particleSize,  2 * -_particleSize));
+			vertPositions.push_back(Vector2(0		*		_particleSize, 0	*		-_particleSize));
+			vertPositions.push_back(Vector2(2		*		_particleSize, 0	*		-_particleSize));
+			vertPositions.push_back(Vector2(2.6f	*		_particleSize, 2	*		-_particleSize));
+			vertPositions.push_back(Vector2(1		*		_particleSize, 3.1f *		-_particleSize));
+			vertPositions.push_back(Vector2(-0.64f	*		_particleSize, 2	*		-_particleSize));
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Pentagon, _renderer, SDL_Colour{ randR, randG, randB, 255 }, rotSpeed);
+			shape = new Shape(_position, vertPositions, Shape::ShapeType::Pentagon, _renderer, rotSpeed);
 			break;
 
 		case Shape::Star:
@@ -153,7 +187,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			vertPositions.push_back(Vector2(9		*		_particleSize * 0.2f, 5		*		-_particleSize * 0.2f));
 
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Star, _renderer, SDL_Colour{ randR, randG, randB, 255 }, rotSpeed);
+			shape = new Shape(_position, vertPositions, Shape::ShapeType::Star, _renderer, rotSpeed);
 			break;
 
 		case Shape::NULL_SHAPE: 
@@ -168,6 +202,5 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 		settings._shape = shape;
 	}
 
-
-	_particleList.push_back(new ParticleObj(settings));
+	_particleList.push_back(new ParticleObj(settings, *this));
 }

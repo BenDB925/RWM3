@@ -73,15 +73,47 @@ void Game::LoadContent()
 	settings._velocity = Vector2(0, 0);
 	//the variation of velocity of the particles so that they don't all go in the same direction
 	settings._velVariation = Vector2(0.2, 0.2);
-	//the min/max time to live
-	settings._timeToLive = Vector2(2, 2.5f);
 	//the time between particles being emitted
 	settings._emissionRate = 0.001f;
 
+	settings._timeToLiveVariation = 2;
+
 	//settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
-	settings._shapeType =  Shape::ShapeType::Star;
+	settings._shapeType =  Shape::ShapeType::Triangle;
 
 	settings._rotationMaxSpeed = 0.05f;
+
+
+	ParticleManager::ColourLerper firstLerp;
+	firstLerp._colour = { 255, 0, 0, 255 };
+	firstLerp._durationOfColour = 1.5f;
+	settings._coloursToLerp.push_back(firstLerp);
+
+	ParticleManager::ColourLerper secondLerp;
+	secondLerp._colour = { 0, 0, 255, 150 };
+	secondLerp._durationOfColour = 1.0f;
+	settings._coloursToLerp.push_back(secondLerp);
+
+	ParticleManager::ColourLerper thirdLerp;
+	thirdLerp._colour = { 0, 255, 0, 150 };
+	thirdLerp._durationOfColour = 0.5f;
+	settings._coloursToLerp.push_back(thirdLerp);
+
+	ParticleManager::ColourLerper fourthL;
+	fourthL._colour = { 255, 255, 255, 255 };
+	fourthL._durationOfColour = 1.5f;
+	settings._coloursToLerp.push_back(fourthL);
+
+
+	ParticleManager::ColourLerper fiveL;
+	fiveL._colour = { 0, 255, 255, 150 };
+	fiveL._durationOfColour = 2.5f;
+	settings._coloursToLerp.push_back(fiveL);
+
+	ParticleManager::ColourLerper sixL;
+	sixL._colour = { 173, 130, 54, 0 };
+	sixL._durationOfColour = 4.5f;
+	settings._coloursToLerp.push_back(sixL);
 
 	_particleSys = ParticleManager(settings, _renderer);
 }

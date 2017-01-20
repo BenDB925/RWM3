@@ -3,6 +3,7 @@
 #include "Vector2.h"
 
 class Shape;
+class ParticleManager;
 
 class ParticleObj
 {
@@ -20,13 +21,14 @@ struct ParticleObjSettings
 };
 
 
-	ParticleObj(ParticleObjSettings pSettings);
+	ParticleObj(ParticleObjSettings pSettings, ParticleManager & pParticleSys);
 	~ParticleObj();
 	void update();
 	bool readyToRespawn() const;
 	void render(SDL_Renderer * pRenderer);
 
 private:
+	ParticleManager & _parentSys;
 	Vector2 _position;
 	SDL_Rect _rect;
 	Vector2 _velocity;

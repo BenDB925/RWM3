@@ -3,6 +3,8 @@
 #include <vector>
 #include <SDL.h>
 
+class ParticleManager;
+
 class Shape
 {
 public:
@@ -17,12 +19,13 @@ public:
 	};
 
 	//relative to position
-	Shape(Vector2 pPos, std::vector<Vector2> pVerts, ShapeType pType, SDL_Renderer* pRenderer, SDL_Color pColour, float pRotSpeed);
+	Shape(Vector2 pPos, std::vector<Vector2> pVerts, ShapeType pType, SDL_Renderer* pRenderer, float pRotSpeed);
 	~Shape();
 	void Draw();
 	void Update(Vector2 _velocity, float pDT);
 	void Rotate(float pDT);
-
+	void SetColour(SDL_Color pColour);
+	
 	Vector2 _position;
 	std::vector<Vector2> _vertices;
 	float _angle;

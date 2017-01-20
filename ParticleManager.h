@@ -7,6 +7,12 @@ class ParticleManager
 {
 public:
 
+	struct ColourLerper
+	{
+		SDL_Color _colour;
+		float _durationOfColour;
+	};
+
 	struct ParticleSettings
 	{
 		Vector2 * _positionToParentTo;
@@ -14,28 +20,28 @@ public:
 		Vector2 _velocity;
 		Vector2 _velVariation;
 		float _emissionRate;
-		Vector2 _timeToLive;
+		float _timeToLiveVariation;
 		SDL_Texture * _texture;
 		Shape::ShapeType _shapeType;
+		std::vector<ColourLerper> _coloursToLerp;
 		float _rotationMaxSpeed;
 	};
 
 	static ParticleSettings _ROCKET_THRUSTER_PRESET;
 	static ParticleSettings _FOOTSTEPS_PRESET;
 
-
+	SDL_Color GetColour(float pAliveTime);
 	ParticleManager() {}
 	ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRenderer);
 	~ParticleManager();
 
 	void update(float pDT);
-	void followMouse(int pMouseX, int pMouseY);
 	void render(SDL_Renderer * pRenderer);
 private:
 
 	void SpawnParticle(Vector2 pDir);
 
-
+	std::vector<ColourLerper> _colourLerpingList;
 	std::vector<ParticleObj *> _particleList;
 	std::vector<Vector2> _velocityList;
 	Vector2 * _positionToParentTo;
