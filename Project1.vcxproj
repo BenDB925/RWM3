@@ -44,19 +44,20 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)dependencies\SDL2_image-2.0.1\include;$(ProjectDir)dependencies\SDL2-2.0.4\include;$(ProjectDir)dependencies\SDL_gfx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)dependencies\SDL2_image-2.0.1\include;$(ProjectDir)dependencies\SDL2-2.0.4\include;$(ProjectDir)dependencies\SDL_gfx\include;$(ProjectDir)dependencies\SDL2_ttf-2.0.14\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)dependencies\SDL2_image-2.0.1\lib\x86;$(ProjectDir)dependencies\SDL2-2.0.4\lib\x86;$(ProjectDir)dependencies\SDL_gfx\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)dependencies\SDL2_image-2.0.1\lib\x86;$(ProjectDir)dependencies\SDL2-2.0.4\lib\x86;$(ProjectDir)dependencies\SDL_gfx\lib;$(ProjectDir)dependencies\SDL2_ttf-2.0.14\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
     <PreBuildEvent>
       <Command>copy "$(ProjectDir)dependencies\SDL2-2.0.4\lib\x86\SDL2.dll" "$(TargetDir)"
 copy "$(ProjectDir)dependencies\SDL2_image-2.0.1\lib\x86\*.dll" "$(TargetDir)"
 copy "$(ProjectDir)dependencies\SDL_gfx\lib\*.dll" "$(TargetDir)"
+copy "$(ProjectDir)dependencies\SDL2_ttf-2.0.14\lib\x86\*.dll" "$(TargetDir)"
 echo D|xcopy /E /Y "$(ProjectDir)assets" "$(TargetDir)assets"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -67,18 +68,20 @@ echo D|xcopy /E /Y "$(ProjectDir)assets" "$(TargetDir)assets"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)dependencies\SDL2_image-2.0.1\include;$(ProjectDir)dependencies\SDL2-2.0.4\include;$(ProjectDir)dependencies\SDL_gfx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)dependencies\SDL2_image-2.0.1\include;$(ProjectDir)dependencies\SDL2-2.0.4\include;$(ProjectDir)dependencies\SDL_gfx\include;$(ProjectDir)dependencies\SDL2_ttf-2.0.14\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)dependencies\SDL2_image-2.0.1\lib\x86;$(ProjectDir)dependencies\SDL2-2.0.4\lib\x86;$(ProjectDir)dependencies\SDL_gfx\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)dependencies\SDL2_image-2.0.1\lib\x86;$(ProjectDir)dependencies\SDL2-2.0.4\lib\x86;$(ProjectDir)dependencies\SDL_gfx\lib;$(ProjectDir)dependencies\SDL2_ttf-2.0.14\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>copy "$(ProjectDir)dependencies\SDL2-2.0.4\lib\x86\SDL2.dll" "$(TargetDir)"
 copy "$(ProjectDir)dependencies\SDL2_image-2.0.1\lib\x86\*.dll" "$(TargetDir)"
 copy "$(ProjectDir)dependencies\SDL_gfx\lib\*.dll" "$(TargetDir)"
+copy "$(ProjectDir)dependencies\SDL2_ttf-2.0.14\lib\x86\*.dll" "$(TargetDir)"
 echo D|xcopy /E /Y "$(ProjectDir)assets" "$(TargetDir)assets"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -86,6 +89,8 @@ echo D|xcopy /E /Y "$(ProjectDir)assets" "$(TargetDir)assets"</Command>
     <ClCompile Include="FramerateCounter.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MenuItem.cpp" />
+    <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="ParticleObj.cpp" />
     <ClCompile Include="Shape.cpp" />
@@ -95,6 +100,8 @@ echo D|xcopy /E /Y "$(ProjectDir)assets" "$(TargetDir)assets"</Command>
     <ClInclude Include="FramerateCounter.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="MenuItem.h" />
+    <ClInclude Include="MenuManager.h" />
     <ClInclude Include="ParticleManager.h" />
     <ClInclude Include="ParticleObj.h" />
     <ClInclude Include="Shape.h" />

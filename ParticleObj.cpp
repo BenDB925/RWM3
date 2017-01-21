@@ -24,7 +24,6 @@ ParticleObj::ParticleObj(ParticleObjSettings pSettings, ParticleManager & pParti
 ParticleObj::~ParticleObj()
 {
 	delete _shape;
-	SDL_DestroyTexture(_texture);
 }
 
 void ParticleObj::update()
@@ -55,7 +54,7 @@ bool ParticleObj::readyToRespawn() const
 
 void ParticleObj::render(SDL_Renderer * pRenderer)
 {
-	if (_texture != nullptr)
+	if (_shape == nullptr)
 	{
 		_rect.x = _position.x;
 		_rect.y = _position.y;

@@ -25,7 +25,8 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 		timeToLiveTotal += _colourLerpingList.at(i)._durationOfColour;
 	}
 
-	_particleTimeToLive = Vector2(timeToLiveTotal - pSettings._timeToLiveVariation, timeToLiveTotal);
+	_minTTL = timeToLiveTotal - pSettings._timeToLiveVariation;
+	_maxTTL = timeToLiveTotal;
 }
 
 ParticleManager::~ParticleManager()
@@ -113,6 +114,93 @@ void ParticleManager::render(SDL_Renderer * pRenderer)
 	}
 }
 
+std::string ParticleManager::IncrementShapeType()
+{
+	switch(_shapeType)
+	{
+	case Shape::Triangle: 
+		_shapeType = Shape::Square;
+		return "Square";
+	case Shape::Square:
+		_shapeType = Shape::Pentagon;
+		return "Pentagon";
+	case Shape::Pentagon:
+		_shapeType = Shape::Star;
+		return "Star";
+	case Shape::Star:
+		_shapeType = Shape::NULL_SHAPE;
+		return "Texture";
+	case Shape::NULL_SHAPE:
+		_shapeType = Shape::Triangle;
+		return "Triangle";
+	default: 
+		return "";
+	}
+}
+
+std::string ParticleManager::DecrementShapeType()
+{
+	switch (_shapeType)
+	{
+	case Shape::Triangle:
+		_shapeType = Shape::NULL_SHAPE;
+		return "Texture";
+	case Shape::Square:
+		_shapeType = Shape::Triangle;
+		return "Triangle";
+	case Shape::Pentagon:
+		_shapeType = Shape::Square;
+		return "Square";
+	case Shape::Star:
+		_shapeType = Shape::Pentagon;
+		return "Pentagon";
+	case Shape::NULL_SHAPE:
+		_shapeType = Shape::Star;
+		return "Star";
+	default:
+		return "";
+	}
+}
+
+float* ParticleManager::GetEmissionRate()
+{
+	return &_emissionRate;
+}
+
+void ParticleManager::ChangeEmissionRate(ParticleManager * pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_emissionRate += 0.02f;
+	else
+		pManager->_emissionRate -= 0.02f;
+}
+
+float * ParticleManager::GetMinTimeToLive()
+{
+	return &_minTTL;
+}
+
+void ParticleManager::ChangeMinTimeToLive(ParticleManager * pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_minTTL += 0.2f;
+	else
+		pManager->_minTTL -= 0.2f;
+}
+
+float* ParticleManager::GetMaxTimeToLive()
+{
+	return &_maxTTL;
+}
+
+void ParticleManager::ChangeMaxTimeToLive(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_maxTTL += 0.2f;
+	else
+		pManager->_maxTTL -= 0.2f;
+}
+
 void ParticleManager::SpawnParticle(Vector2 pDir)
 {
 	float randX = (static_cast<float>((rand() % 1000) / 1000.0f) * _particleVelVariation.x) - _particleVelVariation.x / 2;
@@ -122,14 +210,15 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 	float yVel = (pDir.y - randY) * 150;
 
 	Vector2 vel = Vector2(xVel, yVel);
-	float timeToLive = (static_cast<float>((rand() % 1000) / 1000.0f) * (_particleTimeToLive.y - _particleTimeToLive.x)) + _particleTimeToLive.x;
+	float timeToLive = (static_cast<float>((rand() % 1000) / 1000.0f) * (_maxTTL - _minTTL)) + _minTTL;
 	ParticleObj::ParticleObjSettings settings;
 
 	settings._position = _position;
-	settings._size = _particleSize;
+	settings._size = Vector2(_particleSize, _particleSize);
 	settings._velocity = vel;
 	settings._timeToLive = timeToLive;
 	settings._texture = _particleTexture;
+	settings._shape = nullptr;
 
 
 	if (_shapeType != Shape::NULL_SHAPE)
@@ -146,9 +235,9 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 		switch (_shapeType)
 		{
 		case Shape::Triangle:
-			vertPositions.push_back(Vector2(0 * _particleSize, 0 * _particleSize));
-			vertPositions.push_back(Vector2(5 * _particleSize, 0 * _particleSize));
-			vertPositions.push_back(Vector2(0 * _particleSize, 5 * _particleSize));
+			vertPositions.push_back(Vector2(0 * _particleSize, -2.5f * _particleSize));
+			vertPositions.push_back(Vector2(5 * _particleSize, -2.5f * _particleSize));
+			vertPositions.push_back(Vector2(0 * _particleSize, 2.5f * _particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Triangle, _renderer, rotSpeed);
 

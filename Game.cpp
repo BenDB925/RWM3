@@ -5,6 +5,9 @@
 #include "ParticleManager.h"
 #include <SDL2_gfxPrimitives.h>
 #include "Debug.h"
+#include "MenuItem.h"
+#include <SDL_ttf.h>
+#include "MenuManager.h"
 
 
 using namespace std;
@@ -58,11 +61,29 @@ bool Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 }
 
 
+class A {
+public:
+	int f();
+	int (A::*x)(); // <- declare by saying what class it is a pointer to
+};
+
+int A::f() {
+	return 1;
+}
+
 
 void Game::LoadContent()
 {
 	DEBUG_MSG("Loading Content");
 
+	//Initialize SDL_ttf
+	if (TTF_Init() == -1)
+	{
+		return;
+	}
+
+	A a;
+	a.x = &A::f;
 
 	ParticleManager::ParticleSettings settings = ParticleManager::ParticleSettings();
 	//position of the particle manager
@@ -78,7 +99,7 @@ void Game::LoadContent()
 
 	settings._timeToLiveVariation = 2;
 
-	//settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
+	settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
 	settings._shapeType =  Shape::ShapeType::Triangle;
 
 	settings._rotationMaxSpeed = 0.05f;
@@ -116,12 +137,16 @@ void Game::LoadContent()
 	settings._coloursToLerp.push_back(sixL);
 
 	_particleSys = ParticleManager(settings, _renderer);
+
+
+	MenuManager::Instance()->Init(_renderer);
+	MenuManager::Instance()->AddItem(Vector2(0, 0),	  _particleSys.GetEmissionRate(), 0.01f, "Emission Rate", &ParticleManager::ChangeEmissionRate, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(120, 0), _particleSys.GetMinTimeToLive(), 0.5f, "Min TTL", &ParticleManager::ChangeMinTimeToLive, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(200, 0), _particleSys.GetMaxTimeToLive(), 0.5f, "Max TTL", &ParticleManager::ChangeMaxTimeToLive, &_particleSys);
 }
 
 void Game::Update()
 {
-
-
 	_frameCounter.update(_renderer);
 	_particleSys.update(_frameCounter._DT);
 }
@@ -131,6 +156,7 @@ void Game::Render()
 	SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
 	SDL_RenderClear(_renderer);
 
+	MenuManager::Instance()->Draw();
 
 	//draw
 	_particleSys.render(_renderer);
@@ -160,6 +186,19 @@ void Game::HandleEvents()
 				{
 				case SDLK_ESCAPE:
 					m_running = false;
+					break;
+
+				case SDLK_LEFT:
+					MenuManager::Instance()->HandleInput(MenuManager::Input::Left);
+					break;
+				case SDLK_RIGHT:
+					MenuManager::Instance()->HandleInput(MenuManager::Input::Right);
+					break;
+				case SDLK_UP:
+					MenuManager::Instance()->HandleInput(MenuManager::Input::Up);
+					break;
+				case SDLK_DOWN:
+					MenuManager::Instance()->HandleInput(MenuManager::Input::Down);
 					break;
 				}
 			case SDL_MOUSEBUTTONDOWN:

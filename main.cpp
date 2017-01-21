@@ -1,3 +1,5 @@
+
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <iostream>
 #include "Game.h"
@@ -5,11 +7,12 @@
 #include <string>
 #include "Debug.h"
 
-
 #pragma comment(lib,"SDL2.lib") 
 #pragma comment(lib, "SDL2_image.lib")
 #pragma comment(lib,"SDL2_gfx.dll") 
 #pragma comment(lib, "SDL2_gfx.lib")
+#pragma comment(lib,"SDL2_ttf.lib") 
+#pragma comment(lib, "SDL2_ttf.dll")
 
 using namespace std;
 

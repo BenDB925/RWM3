@@ -32,11 +32,22 @@ public:
 
 	SDL_Color GetColour(float pAliveTime);
 	ParticleManager() {}
+
 	ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRenderer);
 	~ParticleManager();
 
 	void update(float pDT);
 	void render(SDL_Renderer * pRenderer);
+	std::string IncrementShapeType();
+	std::string DecrementShapeType();
+
+	float * GetEmissionRate();
+	static void ChangeEmissionRate(ParticleManager * pManager, bool pIncrement);
+	float* GetMinTimeToLive();
+	static void ChangeMinTimeToLive(ParticleManager * pManager, bool pIncrement);
+	float* GetMaxTimeToLive();
+	static void ChangeMaxTimeToLive(ParticleManager * pManager, bool pIncrement);
+
 private:
 
 	void SpawnParticle(Vector2 pDir);
@@ -53,11 +64,12 @@ private:
 	Vector2 _particleVelVariation;
 	float _particleSize;
 	SDL_Texture * _particleTexture;
-	Vector2 _particleTimeToLive;
-	float _emissionRate;
+	float _minTTL;
+	float _maxTTL;
 	float _timeSinceEmit;
 	Shape::ShapeType _shapeType;
 	SDL_Renderer * _renderer;
 	float _rotationMaxSpeed;
+	float _emissionRate;
 };
 
