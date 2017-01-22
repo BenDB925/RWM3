@@ -70,6 +70,8 @@ void Game::LoadContent()
 		return;
 	}
 
+	_menuTex = TextureLoader::loadTexture("assets/menu.png", _renderer);
+
 
 	ParticleManager::ParticleSettings settings = ParticleManager::ParticleSettings();
 	//position of the particle manager
@@ -101,20 +103,28 @@ void Game::LoadContent()
 
 	ParticleManager::ColourLerper secondLerp;
 	secondLerp._colour = { 173, 130, 54, 50 };
-	secondLerp._durationOfColour = 1.5f;
+	secondLerp._durationOfColour = 2.5f;
 	settings._coloursToLerp.push_back(secondLerp);
 
 	_particleSys = ParticleManager(settings, _renderer);
-
+	
 
 	MenuManager::Instance()->Init(_renderer);
-	MenuManager::Instance()->AddItem(Vector2(0, 0),	  "Emission Rate",	to_string(settings._emissionRate),			&ParticleManager::ChangeEmissionRate,  &_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(120, 0), "Min TTL",		to_string(_particleSys._minTTL),			&ParticleManager::ChangeMinTimeToLive, &_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(200, 0), "Max TTL",		to_string(_particleSys._maxTTL),			&ParticleManager::ChangeMaxTimeToLive, &_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(280, 0), "Starting Vel",	to_string(settings._startingVelocity),		&ParticleManager::ChangeStartingVelocity, &_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(400, 0), "Ending Vel",		to_string(settings._endingVelocity),		&ParticleManager::ChangeEndingVelocity, &_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(500, 0), "Particle Type",  "Star",										&ParticleManager::ChangeParticleType, &_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(640, 0), "Particle Size",  to_string(_particleSys._particleSize),		&ParticleManager::ChangeParticleSize, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(40, 0),  "Star",													   &ParticleManager::ChangeParticleType,	&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(175, 0),  to_string(_particleSys._particleSize),					   &ParticleManager::ChangeParticleSize,	&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(280, 0),  to_string(settings._emissionRate),						   &ParticleManager::ChangeEmissionRate,	&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(410, 0),  to_string(_particleSys._minTTL),							   &ParticleManager::ChangeMinTimeToLive,	&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(515, 0),  to_string(_particleSys._maxTTL),							   &ParticleManager::ChangeMaxTimeToLive,	&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(645, 0),  to_string(settings._startingVelocity),					   &ParticleManager::ChangeStartingVelocity,&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(800, 0),  to_string(settings._endingVelocity),						   &ParticleManager::ChangeEndingVelocity,	&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(925, 0),  to_string(_particleSys._colourLerpingList.at(0)._colour.r), &ParticleManager::ChangeStartingRColour, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(1025, 0), to_string(_particleSys._colourLerpingList.at(0)._colour.g), &ParticleManager::ChangeStartingGColour, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(1080, 0), to_string(_particleSys._colourLerpingList.at(0)._colour.b), &ParticleManager::ChangeStartingBColour, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(1130, 0), to_string(_particleSys._colourLerpingList.at(0)._colour.a), &ParticleManager::ChangeStartingAColour, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(1220, 0), to_string(_particleSys._colourLerpingList.at(1)._colour.r), &ParticleManager::ChangeEndingRColour,   &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(1290, 0), to_string(_particleSys._colourLerpingList.at(1)._colour.g), &ParticleManager::ChangeEndingGColour,   &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(1345, 0), to_string(_particleSys._colourLerpingList.at(1)._colour.b), &ParticleManager::ChangeEndingBColour,   &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(1400, 0), to_string(_particleSys._colourLerpingList.at(1)._colour.a), &ParticleManager::ChangeEndingAColour,   &_particleSys);
 }
 
 void Game::Update()
@@ -128,11 +138,13 @@ void Game::Render()
 	SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
 	SDL_RenderClear(_renderer);
 
-	MenuManager::Instance()->Draw();
 
 	//draw
 	_particleSys.render(_renderer);
+	SDL_Rect menuRect{ 0, 0, 1440, 15 };
+	MenuManager::Instance()->Draw();
 
+	SDL_RenderCopy(_renderer, _menuTex, NULL, &menuRect);
 	SDL_RenderPresent(_renderer);
 }
 

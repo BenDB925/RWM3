@@ -16,9 +16,9 @@ MenuManager::~MenuManager()
 {
 }
 
-void MenuManager::AddItem(Vector2 pPos, std::string pMessage, std::string pVarMessage, std::string(*pFunc)(ParticleManager*, bool), ParticleManager * pManager)
+void MenuManager::AddItem(Vector2 pPos, std::string pVarMessage, std::string(*pFunc)(ParticleManager*, bool), ParticleManager * pManager)
 {
-	_menuList.push_back(new MenuItem(pPos, pMessage, pVarMessage, _renderer, pFunc, pManager));
+	_menuList.push_back(new MenuItem(pPos, pVarMessage, _renderer, pFunc, pManager));
 }
 
 void MenuManager::Init(SDL_Renderer* pRenderer)
@@ -55,14 +55,14 @@ void MenuManager::HandleInput(Input pInput)
 		if (_selectedMenuItem > 0)
 		{
 			_selectedMenuItem--;
-			_selectedShape->_position = Vector2(_menuList.at(_selectedMenuItem)->_textRect.x + 10, 40);
+			_selectedShape->_position = Vector2(_menuList.at(_selectedMenuItem)->_varRect.x, 40);
 		}
 		break;
 	case Right:
 		if (_selectedMenuItem < _menuList.size() - 1)
 		{
 			_selectedMenuItem++;
-			_selectedShape->_position = Vector2(_menuList.at(_selectedMenuItem)->_textRect.x + 10, 40);
+			_selectedShape->_position = Vector2(_menuList.at(_selectedMenuItem)->_varRect.x, 40);
 		}
 		break;
 	case Up: 

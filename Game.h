@@ -25,7 +25,7 @@ private:
 	SDL_Renderer* _renderer;
 	SDL_Surface * _surface;
 
-
+	SDL_Texture * _menuTex;
 	FramerateCounter _frameCounter;
 	ParticleManager _particleSys;
 };

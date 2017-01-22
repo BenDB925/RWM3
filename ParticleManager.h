@@ -52,15 +52,23 @@ public:
 	static std::string ChangeEndingVelocity(ParticleManager * pManager, bool pIncrement);
 	static std::string ChangeParticleType(ParticleManager * pManager, bool pIncrement);
 	static std::string ChangeParticleSize(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeStartingRColour(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeStartingGColour(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeStartingBColour(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeStartingAColour(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeEndingRColour(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeEndingGColour(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeEndingBColour(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeEndingAColour(ParticleManager * pManager, bool pIncrement);
 
 	float _minTTL;
 	float _maxTTL;
 	float _particleSize;
+	std::vector<ColourLerper> _colourLerpingList;
 private:
 
 	void SpawnParticle(Vector2 pDir);
 
-	std::vector<ColourLerper> _colourLerpingList;
 	std::vector<ParticleObj *> _particleList;
 	std::vector<Vector2> _velocityList;
 	Vector2 * _positionToParentTo;

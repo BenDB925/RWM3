@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	Game* game = new Game();
 
 	//Adjust screen positions as needed
-	game->Initialize("A Star", 300, 100, 1000, 1000, SDL_WINDOW_INPUT_FOCUS);
+	game->Initialize("A Star", 300, 100, 1440, 900, SDL_WINDOW_INPUT_FOCUS);
 	DEBUG_MSG("Game Initialised");
 
 	game->LoadContent();

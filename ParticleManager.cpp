@@ -83,7 +83,7 @@ SDL_Color ParticleManager::GetColour(float pAliveTime)
 {
 	float totalTime = 0;
 	int indexOfColour = 0;
-	while (totalTime < pAliveTime)
+	while (totalTime < pAliveTime && indexOfColour < _colourLerpingList.size())
 	{
 		totalTime += _colourLerpingList.at(indexOfColour)._durationOfColour;
 		indexOfColour++;
@@ -207,7 +207,7 @@ std::string ParticleManager::ChangeStartingVelocity(ParticleManager* pManager, b
 	else
 		pManager->_startingVelocity -= 5;
 
-	return std::to_string(pManager->_startingVelocity);
+	return std::to_string(int(pManager->_startingVelocity));
 }
 
 std::string ParticleManager::ChangeEndingVelocity(ParticleManager* pManager, bool pIncrement)
@@ -217,7 +217,7 @@ std::string ParticleManager::ChangeEndingVelocity(ParticleManager* pManager, boo
 	else
 		pManager->_endingVelocity -= 5;
 
-	return std::to_string(pManager->_endingVelocity);
+	return std::to_string(int(pManager->_endingVelocity));
 }
 
 std::string ParticleManager::ChangeParticleType(ParticleManager* pManager, bool pIncrement)
@@ -236,6 +236,80 @@ std::string ParticleManager::ChangeParticleSize(ParticleManager* pManager, bool 
 		pManager->_particleSize -= 0.5f;
 
 	return std::to_string(pManager->_particleSize);
+}
+
+std::string ParticleManager::ChangeStartingRColour(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_colourLerpingList.at(0)._colour.r += 5;
+	else
+		pManager->_colourLerpingList.at(0)._colour.r -= 5;
+
+	return std::to_string(pManager->_colourLerpingList.at(0)._colour.r);
+}
+std::string ParticleManager::ChangeStartingGColour(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_colourLerpingList.at(0)._colour.g += 5;
+	else
+		pManager->_colourLerpingList.at(0)._colour.g -= 5;
+
+	return std::to_string(pManager->_colourLerpingList.at(0)._colour.g);
+}
+std::string ParticleManager::ChangeStartingBColour(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_colourLerpingList.at(0)._colour.b += 5;
+	else
+		pManager->_colourLerpingList.at(0)._colour.b -= 5;
+
+	return std::to_string(pManager->_colourLerpingList.at(0)._colour.b);
+}
+std::string ParticleManager::ChangeStartingAColour(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_colourLerpingList.at(0)._colour.a += 5;
+	else
+		pManager->_colourLerpingList.at(0)._colour.a -= 5;
+
+	return std::to_string(pManager->_colourLerpingList.at(0)._colour.a);
+}
+
+std::string ParticleManager::ChangeEndingRColour(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_colourLerpingList.at(1)._colour.r += 5;
+	else
+		pManager->_colourLerpingList.at(1)._colour.r -= 5;
+
+	return std::to_string(pManager->_colourLerpingList.at(1)._colour.r);
+}
+std::string ParticleManager::ChangeEndingGColour(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_colourLerpingList.at(1)._colour.g += 5;
+	else
+		pManager->_colourLerpingList.at(1)._colour.g -= 5;
+
+	return std::to_string(pManager->_colourLerpingList.at(1)._colour.g);
+}
+std::string ParticleManager::ChangeEndingBColour(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_colourLerpingList.at(1)._colour.b += 5;
+	else
+		pManager->_colourLerpingList.at(1)._colour.b -= 5;
+
+	return std::to_string(pManager->_colourLerpingList.at(1)._colour.b);
+}
+std::string ParticleManager::ChangeEndingAColour(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_colourLerpingList.at(1)._colour.a += 5;
+	else
+		pManager->_colourLerpingList.at(1)._colour.a -= 5;
+
+	return std::to_string(pManager->_colourLerpingList.at(1)._colour.a);
 }
 
 void ParticleManager::SpawnParticle(Vector2 pDir)

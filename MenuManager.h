@@ -18,7 +18,7 @@ public:
 	MenuManager();
 	~MenuManager();
 
-	void AddItem(Vector2 pPos, std::string pMessage, std::string pVarMessage, std::string (*pFunc)(ParticleManager*, bool), ParticleManager* pManager);
+	void AddItem(Vector2 pPos, std::string pVarMessage, std::string (*pFunc)(ParticleManager*, bool), ParticleManager* pManager);
 	void Init(SDL_Renderer * pRenderer);
 
 	void Draw();
