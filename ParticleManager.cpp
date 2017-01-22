@@ -6,9 +6,10 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 	:_colourLerpingList(pSettings._coloursToLerp),
 	_particleList(std::vector<ParticleObj *>()),
 	_positionToParentTo(pSettings._positionToParentTo),
-	_velocity(0, 0),
+	_currentVelocity(0, 0),
 	_accel(0.5f),
-	_particleBaseVel(pSettings._velocity),
+	_startingVelocity(pSettings._startingVelocity),
+	_endingVelocity(pSettings._endingVelocity),
 	_particleVelVariation(pSettings._velVariation),
 	_particleSize(2),
 	_particleTexture(pSettings._texture),
@@ -52,7 +53,7 @@ void ParticleManager::update(float pDT)
 			totalSpeed = totalSpeed + _velocityList.at(i);
 		}
 
-		_velocity = totalSpeed / _velocityList.size();
+		_currentVelocity = totalSpeed / _velocityList.size();
 
 		_position = *_positionToParentTo + _offset;
 	}
@@ -62,7 +63,7 @@ void ParticleManager::update(float pDT)
 
 	if (_timeSinceEmit > _emissionRate)
 	{
-		SpawnParticle(_velocity.Normalize());
+		SpawnParticle(_currentVelocity.Normalize());
 		_timeSinceEmit = 0;
 	}
 
@@ -167,38 +168,74 @@ float* ParticleManager::GetEmissionRate()
 	return &_emissionRate;
 }
 
-void ParticleManager::ChangeEmissionRate(ParticleManager * pManager, bool pIncrement)
+std::string ParticleManager::ChangeEmissionRate(ParticleManager * pManager, bool pIncrement)
 {
 	if (pIncrement)
 		pManager->_emissionRate += 0.02f;
 	else
 		pManager->_emissionRate -= 0.02f;
+
+	return std::to_string(pManager->_emissionRate);
 }
 
-float * ParticleManager::GetMinTimeToLive()
-{
-	return &_minTTL;
-}
 
-void ParticleManager::ChangeMinTimeToLive(ParticleManager * pManager, bool pIncrement)
+std::string ParticleManager::ChangeMinTimeToLive(ParticleManager * pManager, bool pIncrement)
 {
 	if (pIncrement)
 		pManager->_minTTL += 0.2f;
 	else
 		pManager->_minTTL -= 0.2f;
+
+	return std::to_string(pManager->_minTTL);
 }
 
-float* ParticleManager::GetMaxTimeToLive()
-{
-	return &_maxTTL;
-}
 
-void ParticleManager::ChangeMaxTimeToLive(ParticleManager* pManager, bool pIncrement)
+std::string ParticleManager::ChangeMaxTimeToLive(ParticleManager* pManager, bool pIncrement)
 {
 	if (pIncrement)
 		pManager->_maxTTL += 0.2f;
 	else
 		pManager->_maxTTL -= 0.2f;
+
+	return std::to_string(pManager->_maxTTL);
+}
+
+std::string ParticleManager::ChangeStartingVelocity(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_startingVelocity += 5;
+	else
+		pManager->_startingVelocity -= 5;
+
+	return std::to_string(pManager->_startingVelocity);
+}
+
+std::string ParticleManager::ChangeEndingVelocity(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_endingVelocity += 5;
+	else
+		pManager->_endingVelocity -= 5;
+
+	return std::to_string(pManager->_endingVelocity);
+}
+
+std::string ParticleManager::ChangeParticleType(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		return pManager->IncrementShapeType();
+	else
+		return pManager->DecrementShapeType();
+}
+
+std::string ParticleManager::ChangeParticleSize(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_particleSize += 0.5f;
+	else
+		pManager->_particleSize -= 0.5f;
+
+	return std::to_string(pManager->_particleSize);
 }
 
 void ParticleManager::SpawnParticle(Vector2 pDir)
@@ -206,16 +243,21 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 	float randX = (static_cast<float>((rand() % 1000) / 1000.0f) * _particleVelVariation.x) - _particleVelVariation.x / 2;
 	float randY = (static_cast<float>((rand() % 1000) / 1000.0f) * _particleVelVariation.y) - _particleVelVariation.y / 2;
 
-	float xVel = (pDir.x - randX) * 150;
-	float yVel = (pDir.y - randY) * 150;
+	float xVel = (pDir.x - randX) * _startingVelocity;
+	float yVel = (pDir.y - randY) * _startingVelocity;
+	float endingXVel = (pDir.x - randX) * _endingVelocity;
+	float endingYVel = (pDir.y - randY) * _endingVelocity;
 
-	Vector2 vel = Vector2(xVel, yVel);
+	Vector2 startingVel = Vector2(xVel, yVel);
+	Vector2 endingVel = Vector2(endingXVel, endingYVel);
+
 	float timeToLive = (static_cast<float>((rand() % 1000) / 1000.0f) * (_maxTTL - _minTTL)) + _minTTL;
 	ParticleObj::ParticleObjSettings settings;
 
 	settings._position = _position;
 	settings._size = Vector2(_particleSize, _particleSize);
-	settings._velocity = vel;
+	settings._startingVelocity = startingVel;
+	settings._endingVelocity = endingVel;
 	settings._timeToLive = timeToLive;
 	settings._texture = _particleTexture;
 	settings._shape = nullptr;
@@ -231,49 +273,57 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 
 
 		float rotSpeed = ((rand() % 1000 / 1000.0f) * _rotationMaxSpeed * 2) - _rotationMaxSpeed;
-
+		float sizeModifier;
 		switch (_shapeType)
 		{
+
 		case Shape::Triangle:
-			vertPositions.push_back(Vector2(0 * _particleSize, -2.5f * _particleSize));
-			vertPositions.push_back(Vector2(5 * _particleSize, -2.5f * _particleSize));
-			vertPositions.push_back(Vector2(0 * _particleSize, 2.5f * _particleSize));
+
+			sizeModifier = 2.5f;
+			vertPositions.push_back(Vector2(0				 * _particleSize, -sizeModifier * _particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2 * _particleSize, -sizeModifier * _particleSize));
+			vertPositions.push_back(Vector2(0				 * _particleSize,  sizeModifier * _particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Triangle, _renderer, rotSpeed);
 
 			break;
 
 		case Shape::Square:
-			vertPositions.push_back(Vector2(-5		* _particleSize,-5 * _particleSize));
-			vertPositions.push_back(Vector2(5		* _particleSize,-5 * _particleSize));
-			vertPositions.push_back(Vector2(5		* _particleSize, 5 * _particleSize));
-			vertPositions.push_back(Vector2(-5		* _particleSize, 5 * _particleSize));
+
+			sizeModifier = 1.5f;
+			vertPositions.push_back(Vector2(-sizeModifier		* _particleSize,-sizeModifier * _particleSize));
+			vertPositions.push_back(Vector2(sizeModifier		* _particleSize,-sizeModifier * _particleSize));
+			vertPositions.push_back(Vector2(sizeModifier		* _particleSize, sizeModifier * _particleSize));
+			vertPositions.push_back(Vector2(-sizeModifier		* _particleSize, sizeModifier * _particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Square, _renderer, rotSpeed);
 			break;
 
 		case Shape::Pentagon:
-			vertPositions.push_back(Vector2(0		*		_particleSize, 0	*		-_particleSize));
-			vertPositions.push_back(Vector2(2		*		_particleSize, 0	*		-_particleSize));
-			vertPositions.push_back(Vector2(2.6f	*		_particleSize, 2	*		-_particleSize));
-			vertPositions.push_back(Vector2(1		*		_particleSize, 3.1f *		-_particleSize));
-			vertPositions.push_back(Vector2(-0.64f	*		_particleSize, 2	*		-_particleSize));
+
+			sizeModifier = 1.5f;
+			vertPositions.push_back(Vector2(sizeModifier * 0		*		_particleSize, sizeModifier * 0	*			-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2		*		_particleSize, sizeModifier * 0	*			-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2.6f		*		_particleSize, sizeModifier * 2	*			-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 1		*		_particleSize, sizeModifier * 3.1f *		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * -0.64f	*		_particleSize, sizeModifier * 2	*			-_particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Pentagon, _renderer, rotSpeed);
 			break;
 
 		case Shape::Star:
-						
-			vertPositions.push_back(Vector2(6.5		*		_particleSize * 0.2f, 0		*		-_particleSize * 0.2f));
-			vertPositions.push_back(Vector2(5		*		_particleSize * 0.2f, 5		*		-_particleSize * 0.2f));
-			vertPositions.push_back(Vector2(0		*		_particleSize * 0.2f, 5.5f	*		-_particleSize * 0.2f));
-			vertPositions.push_back(Vector2(3.5f	*		_particleSize * 0.2f, 9		*		-_particleSize * 0.2f));
-			vertPositions.push_back(Vector2(2		*		_particleSize * 0.2f, 14	*		-_particleSize * 0.2f));
-			vertPositions.push_back(Vector2(6.5f	*		_particleSize * 0.2f, 11.5f *		-_particleSize * 0.2f));
-			vertPositions.push_back(Vector2(12		*		_particleSize * 0.2f, 14	*		-_particleSize * 0.2f));
-			vertPositions.push_back(Vector2(10.5f	*		_particleSize * 0.2f, 9		*		-_particleSize * 0.2f));
-			vertPositions.push_back(Vector2(14		*		_particleSize * 0.2f, 5.5f	*		-_particleSize * 0.2f));
-			vertPositions.push_back(Vector2(9		*		_particleSize * 0.2f, 5		*		-_particleSize * 0.2f));
+
+			sizeModifier = 0.4f;
+			vertPositions.push_back(Vector2(sizeModifier * 6.5		*		_particleSize, sizeModifier * 0		*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 5		*		_particleSize, sizeModifier * 5		*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 0		*		_particleSize, sizeModifier * 5.5f	*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 3.5f		*		_particleSize, sizeModifier * 9		*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2		*		_particleSize, sizeModifier * 14	*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 6.5f		*		_particleSize, sizeModifier * 11.5f	*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 12		*		_particleSize, sizeModifier * 14	*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 10.5f	*		_particleSize, sizeModifier * 9		*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 14		*		_particleSize, sizeModifier * 5.5f	*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 9		*		_particleSize, sizeModifier * 5		*		-_particleSize));
 
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Star, _renderer, rotSpeed);

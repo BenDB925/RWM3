@@ -14,7 +14,8 @@ struct ParticleObjSettings
 	Vector2 _position;
 	Vector2 _size;
 	SDL_Rect _rect;
-	Vector2 _velocity;
+	Vector2 _startingVelocity;
+	Vector2 _endingVelocity;
 	float _timeToLive;
 	SDL_Texture * _texture;
 	Shape * _shape;
@@ -31,10 +32,11 @@ private:
 	ParticleManager & _parentSys;
 	Vector2 _position;
 	SDL_Rect _rect;
-	Vector2 _velocity;
+	Vector2 _startingVelocity;
+	Vector2 _currentVelocity;
+	Vector2 _endingVelocity;
 	float _timeToLive;
 	float _timeAlive;
-	float _alphaDecayRate;
 	SDL_Texture * _texture;
 	Shape * _shape;
 };

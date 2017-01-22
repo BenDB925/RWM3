@@ -4,16 +4,9 @@
 #include <iomanip>
 #include <string>
 
-double GetFloatPrecision(double value, double precision)
-{
-	return (floor((value * pow(10, precision) + 0.5)) / pow(10, precision));
-}
-
-MenuItem::MenuItem(Vector2 pPos, std::string pMessage, float * pVariableToChange, float pChangingIncrement, SDL_Renderer * pRenderer, void(*pFunc)(ParticleManager*, bool), ParticleManager * pParticleManager)
+MenuItem::MenuItem(Vector2 pPos, std::string pMessage, std::string pVarMess, SDL_Renderer * pRenderer, std::string(*pFunc)(ParticleManager*, bool), ParticleManager * pParticleManager)
 	:_particleManager(pParticleManager),
 	_func(pFunc),
-	 _variableToChange(pVariableToChange), 
-	 _amountToIncrementVar(pChangingIncrement),
 	 _renderer(pRenderer)
 {
 
@@ -27,7 +20,7 @@ MenuItem::MenuItem(Vector2 pPos, std::string pMessage, float * pVariableToChange
 	_textRect.w = pMessage.length() * 8; // controls the width of the rect
 	_textRect.h = 12; // controls the height of the rect
 
-	_varMess = std::to_string(GetFloatPrecision(*pVariableToChange, 3));
+	_varMess = pVarMess;
 	while (_varMess.at(_varMess.size() - 1) == '0')
 	{
 		_varMess.erase(_varMess.begin() + (_varMess.size() - 1));
@@ -63,7 +56,7 @@ void MenuItem::ChangeText(bool pIsPositive)
 
 	_func(_particleManager, pIsPositive);
 
-	_varMess = std::to_string(GetFloatPrecision(*_variableToChange, 10));
+	_varMess = _func(_particleManager, pIsPositive);
 
 	while(_varMess.at(_varMess.size() -1) == '0')
 	{

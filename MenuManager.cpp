@@ -16,9 +16,9 @@ MenuManager::~MenuManager()
 {
 }
 
-void MenuManager::AddItem(Vector2 pPos, float * pVarToChange, float pAmountToIncrementVar, std::string pMessage, void(*pFunc)(ParticleManager*, bool), ParticleManager * pManager)
+void MenuManager::AddItem(Vector2 pPos, std::string pMessage, std::string pVarMessage, std::string(*pFunc)(ParticleManager*, bool), ParticleManager * pManager)
 {
-	_menuList.push_back(new MenuItem(pPos, pMessage, pVarToChange, pAmountToIncrementVar, _renderer, pFunc, pManager));
+	_menuList.push_back(new MenuItem(pPos, pMessage, pVarMessage, _renderer, pFunc, pManager));
 }
 
 void MenuManager::Init(SDL_Renderer* pRenderer)

@@ -9,7 +9,9 @@ ParticleObj::ParticleObj(ParticleObjSettings pSettings, ParticleManager & pParti
 	_parentSys(pParticleSys),
 	_position(pSettings._position),
 	_rect(SDL_Rect()),
-	_velocity(pSettings._velocity),
+	_startingVelocity(pSettings._startingVelocity),
+	_currentVelocity(pSettings._startingVelocity),
+	_endingVelocity(pSettings._endingVelocity),
 	_timeToLive(pSettings._timeToLive),
 	_timeAlive(0),
 	_texture(pSettings._texture),
@@ -33,8 +35,10 @@ void ParticleObj::update()
 	if(_timeAlive > _timeToLive)
 		return;
 
-	_position.x += _velocity.x * FramerateCounter::_DT;
-	_position.y += _velocity.y * FramerateCounter::_DT;
+	_currentVelocity = (_endingVelocity - _startingVelocity) * (_timeAlive / _timeToLive) + _startingVelocity;
+
+	_position.x += _currentVelocity.x * FramerateCounter::_DT;
+	_position.y += _currentVelocity.y * FramerateCounter::_DT;
 
 	if (_shape != nullptr)
 	{
@@ -43,7 +47,7 @@ void ParticleObj::update()
 		if ((col.r == 0 && col.g == 0 && col.b == 0 && col.a == 0) == false)
 			_shape->SetColour(col);
 
-		_shape->Update(_velocity * FramerateCounter::_DT, FramerateCounter::_DT);
+		_shape->Update(_currentVelocity * FramerateCounter::_DT, FramerateCounter::_DT);
 	}
 }
 

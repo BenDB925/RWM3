@@ -17,7 +17,8 @@ public:
 	{
 		Vector2 * _positionToParentTo;
 		Vector2 _offsetFromParent;
-		Vector2 _velocity;
+		float _startingVelocity;
+		float _endingVelocity;
 		Vector2 _velVariation;
 		float _emissionRate;
 		float _timeToLiveVariation;
@@ -41,13 +42,20 @@ public:
 	std::string IncrementShapeType();
 	std::string DecrementShapeType();
 
-	float * GetEmissionRate();
-	static void ChangeEmissionRate(ParticleManager * pManager, bool pIncrement);
-	float* GetMinTimeToLive();
-	static void ChangeMinTimeToLive(ParticleManager * pManager, bool pIncrement);
-	float* GetMaxTimeToLive();
-	static void ChangeMaxTimeToLive(ParticleManager * pManager, bool pIncrement);
 
+	//button functions
+	float * GetEmissionRate();
+	static std::string ChangeEmissionRate(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeMinTimeToLive(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeMaxTimeToLive(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeStartingVelocity(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeEndingVelocity(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeParticleType(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeParticleSize(ParticleManager * pManager, bool pIncrement);
+
+	float _minTTL;
+	float _maxTTL;
+	float _particleSize;
 private:
 
 	void SpawnParticle(Vector2 pDir);
@@ -58,14 +66,12 @@ private:
 	Vector2 * _positionToParentTo;
 	Vector2 _position;
 	Vector2 _offset;
-	Vector2 _velocity;
+	Vector2 _currentVelocity;
+	float _startingVelocity;
+	float _endingVelocity;
 	float _accel;
-	Vector2 _particleBaseVel;
 	Vector2 _particleVelVariation;
-	float _particleSize;
 	SDL_Texture * _particleTexture;
-	float _minTTL;
-	float _maxTTL;
 	float _timeSinceEmit;
 	Shape::ShapeType _shapeType;
 	SDL_Renderer * _renderer;

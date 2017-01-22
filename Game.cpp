@@ -60,18 +60,6 @@ bool Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 	return true;
 }
 
-
-class A {
-public:
-	int f();
-	int (A::*x)(); // <- declare by saying what class it is a pointer to
-};
-
-int A::f() {
-	return 1;
-}
-
-
 void Game::LoadContent()
 {
 	DEBUG_MSG("Loading Content");
@@ -82,8 +70,6 @@ void Game::LoadContent()
 		return;
 	}
 
-	A a;
-	a.x = &A::f;
 
 	ParticleManager::ParticleSettings settings = ParticleManager::ParticleSettings();
 	//position of the particle manager
@@ -91,7 +77,9 @@ void Game::LoadContent()
 	settings._positionToParentTo = _mousePos;
 	settings._offsetFromParent = Vector2(0, 0);
 	//initial velocity of the particles
-	settings._velocity = Vector2(0, 0);
+	settings._startingVelocity = 150;
+	//final velocity of the particles
+	settings._endingVelocity = 0;
 	//the variation of velocity of the particles so that they don't all go in the same direction
 	settings._velVariation = Vector2(0.2, 0.2);
 	//the time between particles being emitted
@@ -100,7 +88,7 @@ void Game::LoadContent()
 	settings._timeToLiveVariation = 2;
 
 	settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
-	settings._shapeType =  Shape::ShapeType::Triangle;
+	settings._shapeType =  Shape::ShapeType::Star;
 
 	settings._rotationMaxSpeed = 0.05f;
 
@@ -110,39 +98,23 @@ void Game::LoadContent()
 	firstLerp._durationOfColour = 1.5f;
 	settings._coloursToLerp.push_back(firstLerp);
 
+
 	ParticleManager::ColourLerper secondLerp;
-	secondLerp._colour = { 0, 0, 255, 150 };
-	secondLerp._durationOfColour = 1.0f;
+	secondLerp._colour = { 173, 130, 54, 50 };
+	secondLerp._durationOfColour = 1.5f;
 	settings._coloursToLerp.push_back(secondLerp);
-
-	ParticleManager::ColourLerper thirdLerp;
-	thirdLerp._colour = { 0, 255, 0, 150 };
-	thirdLerp._durationOfColour = 0.5f;
-	settings._coloursToLerp.push_back(thirdLerp);
-
-	ParticleManager::ColourLerper fourthL;
-	fourthL._colour = { 255, 255, 255, 255 };
-	fourthL._durationOfColour = 1.5f;
-	settings._coloursToLerp.push_back(fourthL);
-
-
-	ParticleManager::ColourLerper fiveL;
-	fiveL._colour = { 0, 255, 255, 150 };
-	fiveL._durationOfColour = 2.5f;
-	settings._coloursToLerp.push_back(fiveL);
-
-	ParticleManager::ColourLerper sixL;
-	sixL._colour = { 173, 130, 54, 0 };
-	sixL._durationOfColour = 4.5f;
-	settings._coloursToLerp.push_back(sixL);
 
 	_particleSys = ParticleManager(settings, _renderer);
 
 
 	MenuManager::Instance()->Init(_renderer);
-	MenuManager::Instance()->AddItem(Vector2(0, 0),	  _particleSys.GetEmissionRate(), 0.01f, "Emission Rate", &ParticleManager::ChangeEmissionRate, &_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(120, 0), _particleSys.GetMinTimeToLive(), 0.5f, "Min TTL", &ParticleManager::ChangeMinTimeToLive, &_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(200, 0), _particleSys.GetMaxTimeToLive(), 0.5f, "Max TTL", &ParticleManager::ChangeMaxTimeToLive, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(0, 0),	  "Emission Rate",	to_string(settings._emissionRate),			&ParticleManager::ChangeEmissionRate,  &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(120, 0), "Min TTL",		to_string(_particleSys._minTTL),			&ParticleManager::ChangeMinTimeToLive, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(200, 0), "Max TTL",		to_string(_particleSys._maxTTL),			&ParticleManager::ChangeMaxTimeToLive, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(280, 0), "Starting Vel",	to_string(settings._startingVelocity),		&ParticleManager::ChangeStartingVelocity, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(400, 0), "Ending Vel",		to_string(settings._endingVelocity),		&ParticleManager::ChangeEndingVelocity, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(500, 0), "Particle Type",  "Star",										&ParticleManager::ChangeParticleType, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(640, 0), "Particle Size",  to_string(_particleSys._particleSize),		&ParticleManager::ChangeParticleSize, &_particleSys);
 }
 
 void Game::Update()

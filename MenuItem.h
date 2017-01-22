@@ -7,7 +7,7 @@ class Vector2;
 class MenuItem
 {
 public:
-	MenuItem(Vector2 pPos, std::string pMessage, float* pVariableToChange, float pChangingIncrement, SDL_Renderer* pRenderer, void (*pFunc)(ParticleManager*, bool), ParticleManager* pParticleManager);
+	MenuItem(Vector2 pPos, std::string pMessage, std::string pVarMess, SDL_Renderer * pRenderer, std::string(*pFunc)(ParticleManager*, bool), ParticleManager * pParticleManager);
 	~MenuItem();
 
 	void Draw();
@@ -15,11 +15,9 @@ public:
 
 	SDL_Rect _textRect;
 
-	void(*_func)(ParticleManager*, bool);
+	std::string(*_func)(ParticleManager*, bool);
 
 private:
-	float * _variableToChange;
-	float _amountToIncrementVar;
 	TTF_Font* _font;
 	SDL_Surface * _textSurface;
 	SDL_Texture * _textTexture;
