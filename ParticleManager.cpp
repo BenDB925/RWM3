@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ParticleManager.h"
 #include "FramerateCounter.h"
 
@@ -61,10 +63,10 @@ void ParticleManager::update(float pDT)
 
 	_timeSinceEmit += pDT;
 
-	if (_timeSinceEmit > _emissionRate)
+	while (_timeSinceEmit > _emissionRate)
 	{
 		SpawnParticle(_currentVelocity.Normalize());
-		_timeSinceEmit = 0;
+		_timeSinceEmit -= _emissionRate;
 	}
 
 	for (int i = 0; i < _particleList.size(); i++)
@@ -171,9 +173,11 @@ float* ParticleManager::GetEmissionRate()
 std::string ParticleManager::ChangeEmissionRate(ParticleManager * pManager, bool pIncrement)
 {
 	if (pIncrement)
-		pManager->_emissionRate += 0.02f;
+		pManager->_emissionRate += 0.005f;
+	else if(pManager->_emissionRate > 0.005f)
+		pManager->_emissionRate -= 0.005f;
 	else
-		pManager->_emissionRate -= 0.02f;
+		pManager->_emissionRate = 0.001f;
 
 	return std::to_string(pManager->_emissionRate);
 }
@@ -218,6 +222,16 @@ std::string ParticleManager::ChangeEndingVelocity(ParticleManager* pManager, boo
 		pManager->_endingVelocity -= 5;
 
 	return std::to_string(int(pManager->_endingVelocity));
+}
+
+std::string ParticleManager::ChangeConeAngle(ParticleManager* pManager, bool pIncrement)
+{
+	if (pIncrement)
+		pManager->_particleVelVariation += 0.1f;
+	else
+		pManager->_particleVelVariation -= 0.1f;
+
+	return std::to_string(pManager->_particleVelVariation);
 }
 
 std::string ParticleManager::ChangeParticleType(ParticleManager* pManager, bool pIncrement)
@@ -314,8 +328,8 @@ std::string ParticleManager::ChangeEndingAColour(ParticleManager* pManager, bool
 
 void ParticleManager::SpawnParticle(Vector2 pDir)
 {
-	float randX = (static_cast<float>((rand() % 1000) / 1000.0f) * _particleVelVariation.x) - _particleVelVariation.x / 2;
-	float randY = (static_cast<float>((rand() % 1000) / 1000.0f) * _particleVelVariation.y) - _particleVelVariation.y / 2;
+	float randX = (static_cast<float>((rand() % 1000) / 1000.0f) * _particleVelVariation) - _particleVelVariation / 2;
+	float randY = (static_cast<float>((rand() % 1000) / 1000.0f) * _particleVelVariation) - _particleVelVariation / 2;
 
 	float xVel = (pDir.x - randX) * _startingVelocity;
 	float yVel = (pDir.y - randY) * _startingVelocity;
@@ -414,6 +428,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 
 		settings._shape = shape;
 	}
+
 
 	_particleList.push_back(new ParticleObj(settings, *this));
 }

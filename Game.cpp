@@ -3,17 +3,17 @@
 #include <thread>
 #include "TextureLoader.h"
 #include "ParticleManager.h"
-#include <SDL2_gfxPrimitives.h>
 #include "Debug.h"
-#include "MenuItem.h"
 #include <SDL_ttf.h>
 #include "MenuManager.h"
 
-
 using namespace std;
+Vector2 * Game::_mousePos;
+
 
 Game::Game() : m_running(false), _frameCounter()
 {
+	_mousePos = new Vector2(300, 300);
 }
 
 Game::~Game()
@@ -75,7 +75,6 @@ void Game::LoadContent()
 
 	ParticleManager::ParticleSettings settings = ParticleManager::ParticleSettings();
 	//position of the particle manager
-	_mousePos = new Vector2(0, 0);
 	settings._positionToParentTo = _mousePos;
 	settings._offsetFromParent = Vector2(0, 0);
 	//initial velocity of the particles
@@ -83,26 +82,26 @@ void Game::LoadContent()
 	//final velocity of the particles
 	settings._endingVelocity = 0;
 	//the variation of velocity of the particles so that they don't all go in the same direction
-	settings._velVariation = Vector2(0.2, 0.2);
+	settings._velVariation = 1;
 	//the time between particles being emitted
-	settings._emissionRate = 0.001f;
+	settings._emissionRate = 0.005f;
 
 	settings._timeToLiveVariation = 2;
 
 	settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
-	settings._shapeType =  Shape::ShapeType::Star;
+	settings._shapeType =  Shape::ShapeType::Pentagon;
 
 	settings._rotationMaxSpeed = 0.05f;
 
 
 	ParticleManager::ColourLerper firstLerp;
-	firstLerp._colour = { 255, 0, 0, 255 };
+	firstLerp._colour = { 255, 255, 0, 255 };
 	firstLerp._durationOfColour = 1.5f;
 	settings._coloursToLerp.push_back(firstLerp);
 
 
 	ParticleManager::ColourLerper secondLerp;
-	secondLerp._colour = { 173, 130, 54, 50 };
+	secondLerp._colour = { 173, 130, 54, 0 };
 	secondLerp._durationOfColour = 2.5f;
 	settings._coloursToLerp.push_back(secondLerp);
 
@@ -110,15 +109,16 @@ void Game::LoadContent()
 	
 
 	MenuManager::Instance()->Init(_renderer);
-	MenuManager::Instance()->AddItem(Vector2(40, 0),  "Star",													   &ParticleManager::ChangeParticleType,	&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(40, 0),  "Pentagon",												   &ParticleManager::ChangeParticleType,	&_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(175, 0),  to_string(_particleSys._particleSize),					   &ParticleManager::ChangeParticleSize,	&_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(280, 0),  to_string(settings._emissionRate),						   &ParticleManager::ChangeEmissionRate,	&_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(410, 0),  to_string(_particleSys._minTTL),							   &ParticleManager::ChangeMinTimeToLive,	&_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(515, 0),  to_string(_particleSys._maxTTL),							   &ParticleManager::ChangeMaxTimeToLive,	&_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(645, 0),  to_string(settings._startingVelocity),					   &ParticleManager::ChangeStartingVelocity,&_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(800, 0),  to_string(settings._endingVelocity),						   &ParticleManager::ChangeEndingVelocity,	&_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(925, 0),  to_string(_particleSys._colourLerpingList.at(0)._colour.r), &ParticleManager::ChangeStartingRColour, &_particleSys);
-	MenuManager::Instance()->AddItem(Vector2(1025, 0), to_string(_particleSys._colourLerpingList.at(0)._colour.g), &ParticleManager::ChangeStartingGColour, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(780, 0),  to_string(settings._endingVelocity),						   &ParticleManager::ChangeEndingVelocity,	&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(865, 0),  to_string(settings._velVariation),						   &ParticleManager::ChangeConeAngle,		&_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(945, 0),  to_string(_particleSys._colourLerpingList.at(0)._colour.r), &ParticleManager::ChangeStartingRColour, &_particleSys);
+	MenuManager::Instance()->AddItem(Vector2(1035, 0), to_string(_particleSys._colourLerpingList.at(0)._colour.g), &ParticleManager::ChangeStartingGColour, &_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(1080, 0), to_string(_particleSys._colourLerpingList.at(0)._colour.b), &ParticleManager::ChangeStartingBColour, &_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(1130, 0), to_string(_particleSys._colourLerpingList.at(0)._colour.a), &ParticleManager::ChangeStartingAColour, &_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(1220, 0), to_string(_particleSys._colourLerpingList.at(1)._colour.r), &ParticleManager::ChangeEndingRColour,   &_particleSys);

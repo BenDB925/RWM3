@@ -26,7 +26,7 @@ void MenuManager::Init(SDL_Renderer* pRenderer)
 	_renderer = pRenderer;
 
 
-	Vector2 position = Vector2(30, 40);
+	Vector2 position = Vector2(55, 30);
 
 	float size = 10;
 	std::vector<Vector2> vertPositions;
@@ -55,14 +55,14 @@ void MenuManager::HandleInput(Input pInput)
 		if (_selectedMenuItem > 0)
 		{
 			_selectedMenuItem--;
-			_selectedShape->_position = Vector2(_menuList.at(_selectedMenuItem)->_varRect.x, 40);
+			_selectedShape->_position = Vector2(_menuList.at(_selectedMenuItem)->_varRect.x, 30);
 		}
 		break;
 	case Right:
 		if (_selectedMenuItem < _menuList.size() - 1)
 		{
 			_selectedMenuItem++;
-			_selectedShape->_position = Vector2(_menuList.at(_selectedMenuItem)->_varRect.x, 40);
+			_selectedShape->_position = Vector2(_menuList.at(_selectedMenuItem)->_varRect.x, 30);
 		}
 		break;
 	case Up: 

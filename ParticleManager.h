@@ -13,15 +13,36 @@ public:
 		float _durationOfColour;
 	};
 
-	struct ParticleSettings
+	class ParticleSettings
 	{
+	public:
+		ParticleSettings()
+			:_positionToParentTo(nullptr),
+			_offsetFromParent(Vector2(0, 0)),
+			_startingVelocity(0),
+			_endingVelocity(0),
+			_velVariation(1),
+			_emissionRate(0.02f),
+			_timeToLiveVariation(0),
+			_minTTL(2),
+			_maxTTL(4),
+			_texture(nullptr),
+			_shapeType(Shape::ShapeType::Pentagon),
+			_coloursToLerp(std::vector<ColourLerper>()),
+			_rotationMaxSpeed(0)
+		{
+
+		}
+
 		Vector2 * _positionToParentTo;
 		Vector2 _offsetFromParent;
 		float _startingVelocity;
 		float _endingVelocity;
-		Vector2 _velVariation;
+		float _velVariation;
 		float _emissionRate;
 		float _timeToLiveVariation;
+		float _minTTL;
+		float _maxTTL;
 		SDL_Texture * _texture;
 		Shape::ShapeType _shapeType;
 		std::vector<ColourLerper> _coloursToLerp;
@@ -50,6 +71,7 @@ public:
 	static std::string ChangeMaxTimeToLive(ParticleManager * pManager, bool pIncrement);
 	static std::string ChangeStartingVelocity(ParticleManager * pManager, bool pIncrement);
 	static std::string ChangeEndingVelocity(ParticleManager * pManager, bool pIncrement);
+	static std::string ChangeConeAngle(ParticleManager * pManager, bool pIncrement);
 	static std::string ChangeParticleType(ParticleManager * pManager, bool pIncrement);
 	static std::string ChangeParticleSize(ParticleManager * pManager, bool pIncrement);
 	static std::string ChangeStartingRColour(ParticleManager * pManager, bool pIncrement);
@@ -78,7 +100,7 @@ private:
 	float _startingVelocity;
 	float _endingVelocity;
 	float _accel;
-	Vector2 _particleVelVariation;
+	float _particleVelVariation;
 	SDL_Texture * _particleTexture;
 	float _timeSinceEmit;
 	Shape::ShapeType _shapeType;

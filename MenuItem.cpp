@@ -7,15 +7,23 @@
 MenuItem::MenuItem(Vector2 pPos, std::string pVarMess, SDL_Renderer * pRenderer, std::string(*pFunc)(ParticleManager*, bool), ParticleManager * pParticleManager)
 	:_particleManager(pParticleManager),
 	_func(pFunc),
-	 _renderer(pRenderer)
+	_renderer(pRenderer)
 {
 	_font = TTF_OpenFont("assets/Square.ttf", 2000); //this opens a font style and sets a size
 	_varMess = pVarMess;
 
-	while (_varMess.at(_varMess.size() - 1) == '0' && _varMess.size() > 1)
+
+	if (find(_varMess.begin(), _varMess.end(), '.') != _varMess.end())
 	{
-		_varMess.erase(_varMess.begin() + (_varMess.size() - 1));
+		if (_varMess.size() > 5)
+		{
+			while (_varMess.at(_varMess.size() - 4) != '.')
+			{
+				_varMess.erase(_varMess.begin() + (_varMess.size() - 1));
+			}
+		}
 	}
+
 
 	_varSurface = TTF_RenderText_Solid(_font, _varMess.c_str(), { 255, 255, 255 }); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
 	_varTexture = SDL_CreateTextureFromSurface(_renderer, _varSurface); //now you can convert it into a texture
@@ -45,10 +53,16 @@ void MenuItem::ChangeText(bool pIsPositive)
 
 	_varMess = _func(_particleManager, pIsPositive);
 
-	/*while(_varMess.at(_varMess.size() -1) == '0')
+	if (find(_varMess.begin(), _varMess.end(), '.') != _varMess.end())
 	{
-		_varMess.erase(_varMess.begin() + (_varMess.size() - 1));
-	}*/
+		if (_varMess.size() > 5)
+		{
+			while (_varMess.at(_varMess.size() - 4) != '.')
+			{
+				_varMess.erase(_varMess.begin() + (_varMess.size() - 1));
+			}
+		}
+	}
 
 	_varRect.w = _varMess.length() * 8; // controls the width of the rect
 	_varSurface = TTF_RenderText_Solid(_font, _varMess.c_str(), { 255, 255, 255 }); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first

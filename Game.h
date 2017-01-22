@@ -18,8 +18,8 @@ public:
 	void HandleEvents();
 	bool IsRunning();
 	void CleanUp();
+	static Vector2 * _mousePos;
 private:
-	Vector2 * _mousePos;
 	bool m_running;
 	SDL_Window* _window;
 	SDL_Renderer* _renderer;
