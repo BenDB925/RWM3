@@ -21,6 +21,11 @@ ParticleObj::ParticleObj(ParticleObjSettings pSettings, ParticleManager & pParti
 	_rect.y = _position.y;
 	_rect.w = pSettings._size.x;
 	_rect.h = pSettings._size.y;
+	_angle = 0;
+	if(_shape == nullptr)
+	{
+		_angle = (atan2(pSettings._direction.y, pSettings._direction.x) * 180 / 3.1418f) - 90;
+	}
 }
 
 ParticleObj::~ParticleObj()
@@ -64,7 +69,10 @@ void ParticleObj::render(SDL_Renderer * pRenderer)
 		_rect.y = _position.y;
 		SDL_SetTextureAlphaMod(_texture, 255 - ((_timeAlive / _timeToLive) * 255));
 
-		SDL_RenderCopy(pRenderer, _texture, NULL, &_rect);
+		//SDL_RenderCopy(pRenderer, _texture, NULL, &_rect);
+
+
+		SDL_RenderCopyEx(pRenderer, _texture, NULL, &_rect, _angle, NULL, SDL_FLIP_NONE);
 	}
 	else
 	{

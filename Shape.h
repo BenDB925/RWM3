@@ -15,6 +15,9 @@ public:
 		Square,
 		Pentagon,
 		Star,
+		Footsteps,
+		RocketThruster,
+		Tron,
 		NULL_SHAPE
 	};
 

@@ -21,11 +21,12 @@ public:
 			_offsetFromParent(Vector2(0, 0)),
 			_startingVelocity(0),
 			_endingVelocity(0),
-			_velVariation(1),
+			_velVariation(0.25f),
 			_emissionRate(0.02f),
 			_timeToLiveVariation(0),
 			_minTTL(2),
 			_maxTTL(4),
+			_particleSize(1.6f),
 			_texture(nullptr),
 			_shapeType(Shape::ShapeType::Pentagon),
 			_coloursToLerp(std::vector<ColourLerper>()),
@@ -43,6 +44,7 @@ public:
 		float _timeToLiveVariation;
 		float _minTTL;
 		float _maxTTL;
+		float _particleSize;
 		SDL_Texture * _texture;
 		Shape::ShapeType _shapeType;
 		std::vector<ColourLerper> _coloursToLerp;
@@ -51,6 +53,7 @@ public:
 
 	static ParticleSettings _ROCKET_THRUSTER_PRESET;
 	static ParticleSettings _FOOTSTEPS_PRESET;
+	static ParticleSettings _TRON_PRESET;
 
 	SDL_Color GetColour(float pAliveTime);
 	ParticleManager() {}
@@ -60,12 +63,18 @@ public:
 
 	void update(float pDT);
 	void render(SDL_Renderer * pRenderer);
-	std::string IncrementShapeType();
-	std::string DecrementShapeType();
+	void TurnOnOff() { _started = !_started; }
+
+	void SetUpRocketThruster();
+	void GetDefaultColours();
+	void SetupTron();
+	void SetUpFootsteps();
+	void SetUpTexture();
 
 
 	//button functions
-	float * GetEmissionRate();
+	std::string IncrementShapeType();
+	std::string DecrementShapeType();
 	static std::string ChangeEmissionRate(ParticleManager * pManager, bool pIncrement);
 	static std::string ChangeMinTimeToLive(ParticleManager * pManager, bool pIncrement);
 	static std::string ChangeMaxTimeToLive(ParticleManager * pManager, bool pIncrement);
@@ -87,25 +96,28 @@ public:
 	float _maxTTL;
 	float _particleSize;
 	std::vector<ColourLerper> _colourLerpingList;
+	float _particleVelVariation;
+	float _startingVelocity;
+	float _endingVelocity;
+	Shape::ShapeType _shapeType;
+	float _emissionRate;
+
 private:
 
 	void SpawnParticle(Vector2 pDir);
 
+	SDL_Texture * _textureExampleHolder;
+
+	bool _started;
 	std::vector<ParticleObj *> _particleList;
 	std::vector<Vector2> _velocityList;
 	Vector2 * _positionToParentTo;
 	Vector2 _position;
 	Vector2 _offset;
 	Vector2 _currentVelocity;
-	float _startingVelocity;
-	float _endingVelocity;
 	float _accel;
-	float _particleVelVariation;
-	SDL_Texture * _particleTexture;
 	float _timeSinceEmit;
-	Shape::ShapeType _shapeType;
 	SDL_Renderer * _renderer;
 	float _rotationMaxSpeed;
-	float _emissionRate;
 };
 

@@ -16,6 +16,7 @@ struct ParticleObjSettings
 	SDL_Rect _rect;
 	Vector2 _startingVelocity;
 	Vector2 _endingVelocity;
+	Vector2 _direction;
 	float _timeToLive;
 	SDL_Texture * _texture;
 	Shape * _shape;
@@ -37,6 +38,7 @@ private:
 	Vector2 _endingVelocity;
 	float _timeToLive;
 	float _timeAlive;
+	float _angle;
 	SDL_Texture * _texture;
 	Shape * _shape;
 };

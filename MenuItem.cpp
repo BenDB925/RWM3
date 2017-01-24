@@ -24,7 +24,6 @@ MenuItem::MenuItem(Vector2 pPos, std::string pVarMess, SDL_Renderer * pRenderer,
 		}
 	}
 
-
 	_varSurface = TTF_RenderText_Solid(_font, _varMess.c_str(), { 255, 255, 255 }); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
 	_varTexture = SDL_CreateTextureFromSurface(_renderer, _varSurface); //now you can convert it into a texture
 

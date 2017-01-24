@@ -19,6 +19,7 @@ public:
 	bool IsRunning();
 	void CleanUp();
 	static Vector2 * _mousePos;
+	static Vector2 _tronPos;
 private:
 	bool m_running;
 	SDL_Window* _window;
@@ -28,5 +29,19 @@ private:
 	SDL_Texture * _menuTex;
 	FramerateCounter _frameCounter;
 	ParticleManager _particleSys;
+
+	enum TronDirection
+	{
+		Up,
+		Down,
+		Left,
+		Right
+	};
+
+	TronDirection _direction;
+	float _timeSinceDirChange;
+	float _TIME_BEFORE_DIR_CHANGE = 0.15f;
+	const float _TRON_VEL = 2.5f;
+
 };
 #endif

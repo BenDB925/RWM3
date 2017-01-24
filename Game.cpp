@@ -9,6 +9,7 @@
 
 using namespace std;
 Vector2 * Game::_mousePos;
+Vector2 Game::_tronPos;
 
 
 Game::Game() : m_running(false), _frameCounter()
@@ -81,14 +82,14 @@ void Game::LoadContent()
 	settings._startingVelocity = 150;
 	//final velocity of the particles
 	settings._endingVelocity = 0;
-	//the variation of velocity of the particles so that they don't all go in the same direction
-	settings._velVariation = 1;
 	//the time between particles being emitted
 	settings._emissionRate = 0.005f;
 
 	settings._timeToLiveVariation = 2;
 
-	settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
+	//settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
+	//settings._texture = TextureLoader::loadTexture("assets/footsteps.png", _renderer);
+	settings._texture = TextureLoader::loadTexture("assets/laser.png", _renderer);
 	settings._shapeType =  Shape::ShapeType::Pentagon;
 
 	settings._rotationMaxSpeed = 0.05f;
@@ -131,6 +132,50 @@ void Game::Update()
 {
 	_frameCounter.update(_renderer);
 	_particleSys.update(_frameCounter._DT);
+
+	_timeSinceDirChange += _frameCounter._DT;
+
+	if(_particleSys._shapeType == Shape::Tron)
+	{
+		if (_timeSinceDirChange > _TIME_BEFORE_DIR_CHANGE)
+		{
+			_timeSinceDirChange = 0;
+			float xDist = _mousePos->x - _tronPos.x;
+			float yDist = _mousePos->y - _tronPos.y;
+
+			if(abs(xDist) > abs(yDist))
+			{
+				if (xDist > 0)
+					_direction = Right;
+				else
+					_direction = Left;
+			}
+			else
+			{
+				if (yDist < 0)
+					_direction = Down;
+				else
+					_direction = Up;
+			}
+		}
+
+		switch (_direction)
+		{
+		case Up:
+			_tronPos.y += _TRON_VEL;
+			break;
+		case Down:
+			_tronPos.y -= _TRON_VEL;
+			break;
+		case Left:
+			_tronPos.x -= _TRON_VEL;
+			break;
+		case Right:
+			_tronPos.x += _TRON_VEL;
+			break;
+		}
+	}
+
 }
 
 void Game::Render()
@@ -160,9 +205,10 @@ void Game::HandleEvents()
 		int mouseX;
 		int mouseY;
 		SDL_GetMouseState(&mouseX, &mouseY);
+
 		_mousePos->x = mouseX;
 		_mousePos->y = mouseY;
-
+			
 		switch(event.type)
 		{
 			case SDL_KEYDOWN:
@@ -184,6 +230,12 @@ void Game::HandleEvents()
 				case SDLK_DOWN:
 					MenuManager::Instance()->HandleInput(MenuManager::Input::Down);
 					break;
+
+				case SDLK_SPACE:
+					_particleSys.TurnOnOff();
+					break;
+				default:
+					break;
 				}
 			case SDL_MOUSEBUTTONDOWN:
 				break;
@@ -191,6 +243,7 @@ void Game::HandleEvents()
 			case SDL_QUIT:
 				m_running = false;
 				break;
+		default: break;
 		}
 
 	}
