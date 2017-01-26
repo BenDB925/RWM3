@@ -18,6 +18,7 @@ public:
 		Footsteps,
 		RocketThruster,
 		Tron,
+		StarPreset,
 		NULL_SHAPE
 	};
 

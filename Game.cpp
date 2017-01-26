@@ -157,6 +157,8 @@ void Game::Update()
 				else
 					_direction = Up;
 			}
+
+			_particleSys._velocityList.clear();
 		}
 
 		switch (_direction)

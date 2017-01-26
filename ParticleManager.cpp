@@ -7,6 +7,7 @@
 ParticleManager::ParticleSettings ParticleManager::_FOOTSTEPS_PRESET;
 ParticleManager::ParticleSettings ParticleManager::_ROCKET_THRUSTER_PRESET;
 ParticleManager::ParticleSettings ParticleManager::_TRON_PRESET;
+ParticleManager::ParticleSettings ParticleManager::_STAR_PRESET;
 
 ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRenderer)
 	:_particleSize(pSettings._particleSize),
@@ -45,17 +46,27 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 
 	_ROCKET_THRUSTER_PRESET = ParticleSettings();
 	_ROCKET_THRUSTER_PRESET._particleSize = 3;
-	_ROCKET_THRUSTER_PRESET._emissionRate = 0.002f;
+	_ROCKET_THRUSTER_PRESET._emissionRate = 0.005f;
 	_ROCKET_THRUSTER_PRESET._startingVelocity = 150;
 	_ROCKET_THRUSTER_PRESET._endingVelocity = 0;
 	_ROCKET_THRUSTER_PRESET._velVariation = 0.3f;
 
 	_TRON_PRESET = ParticleSettings();
-	_TRON_PRESET._particleSize = 10;
+	_TRON_PRESET._particleSize = 6;
 	_TRON_PRESET._emissionRate = 0.001f;
 	_TRON_PRESET._startingVelocity = 0;
 	_TRON_PRESET._endingVelocity = 0;
 	_TRON_PRESET._velVariation = 0.0f;
+	_TRON_PRESET._minTTL = 4;
+	_TRON_PRESET._maxTTL = 4;
+
+	_STAR_PRESET = ParticleSettings();
+	_STAR_PRESET._particleSize = 2.5f;
+	_STAR_PRESET._emissionRate = 0.005f;
+	_STAR_PRESET._startingVelocity = 150;
+	_STAR_PRESET._endingVelocity = 0;
+	_STAR_PRESET._minTTL = 2;
+	_STAR_PRESET._maxTTL = 4;
 }
 
 ParticleManager::~ParticleManager()
@@ -180,6 +191,9 @@ void ParticleManager::SetUpRocketThruster()
 
 void ParticleManager::GetDefaultColours()
 {
+	_maxTTL = _STAR_PRESET._maxTTL;
+	_minTTL = _STAR_PRESET._minTTL;
+
 	_colourLerpingList.clear();
 
 	ColourLerper firstLerp;
@@ -203,6 +217,51 @@ void ParticleManager::SetupTron()
 	_textureExampleHolder = TextureLoader::loadTexture("assets/laser.png", _renderer);
 	_startingVelocity = _TRON_PRESET._startingVelocity;
 	_endingVelocity = _TRON_PRESET._endingVelocity;
+	_minTTL = _TRON_PRESET._minTTL;
+	_maxTTL = _TRON_PRESET._maxTTL;
+}
+
+void ParticleManager::SetUpStarPreset()
+{
+	_shapeType = Shape::StarPreset;
+	_textureExampleHolder = nullptr;
+	
+	_particleSize = _STAR_PRESET._particleSize;
+	_emissionRate = _STAR_PRESET._emissionRate;
+	_startingVelocity = _STAR_PRESET._startingVelocity;
+	_endingVelocity = _STAR_PRESET._endingVelocity;
+	_minTTL = _STAR_PRESET._minTTL;
+	_maxTTL = _STAR_PRESET._maxTTL;
+
+
+	_colourLerpingList.clear();
+
+	Uint8 randomCol1 = rand() % 20 + 235;
+	Uint8 randomCol2 = rand() % 20 + 168;
+	Uint8 randomCol3 = rand() % 20 + 42;
+
+	ColourLerper firstLerp;
+	firstLerp._colour = { randomCol1, randomCol2, randomCol3, 255 };
+	firstLerp._durationOfColour = 0.75f;
+	_colourLerpingList.push_back(firstLerp);
+
+	randomCol1 = rand() % 20 + 230;
+	randomCol2 = rand() % 20 + 220;
+	randomCol3 = rand() % 20 + 135;
+
+	ColourLerper secondLerp;
+	secondLerp._colour = { randomCol1, randomCol2, randomCol3, 255 };
+	secondLerp._durationOfColour = 0.75f;
+	_colourLerpingList.push_back(secondLerp);
+
+	randomCol1 = rand() % 20 + 90;
+	randomCol2 = rand() % 20 + 90;
+	randomCol3 = rand() % 20 + 90;
+
+	ColourLerper thirdLerp;
+	thirdLerp._colour = { randomCol1, randomCol2, randomCol3, 0 };
+	thirdLerp._durationOfColour = 1.5f;
+	_colourLerpingList.push_back(thirdLerp);
 }
 
 void ParticleManager::SetUpFootsteps()
@@ -259,6 +318,9 @@ std::string ParticleManager::IncrementShapeType()
 		SetupTron();
 		return "Tron";
 	case Shape::Tron:
+		SetUpStarPreset();
+		return "Star Preset";
+	case Shape::StarPreset:
 		SetUpTexture();
 		return "Texture";
 	case Shape::NULL_SHAPE:
@@ -298,12 +360,15 @@ std::string ParticleManager::DecrementShapeType()
 		return "Pentagon";
 	case Shape::NULL_SHAPE:
 		_shapeType = Shape::Star;
-		if(_colourLerpingList.size() == 0)
+		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
 		return "Star";
-	case Shape::Footsteps:
+	case Shape::StarPreset:
 		SetUpTexture();
 		return "Texture";
+	case Shape::Footsteps:
+		SetUpStarPreset();
+		return "Star Preset";
 	case Shape::RocketThruster:
 		SetUpFootsteps();
 		return "Foot Steps";
@@ -507,6 +572,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 
 		float rotSpeed = ((rand() % 1000 / 1000.0f) * _rotationMaxSpeed * 2) - _rotationMaxSpeed;
 		float sizeModifier;
+		int randomScale;
 		switch (_shapeType)
 		{
 
@@ -583,6 +649,28 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			vertPositions.push_back(Vector2(sizeModifier * -0.64f	* _particleSize, sizeModifier * 2 * -_particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Pentagon, _renderer, rotSpeed);
+
+
+			break;
+
+		case Shape::StarPreset:
+
+			settings._size = Vector2(_STAR_PRESET._particleSize, _STAR_PRESET._particleSize);
+			randomScale = rand() % 10;
+
+			sizeModifier = 0.2f + (0.05f * randomScale);
+			vertPositions.push_back(Vector2(sizeModifier * 6.5		*		_particleSize, sizeModifier * 0 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 5 * _particleSize, sizeModifier * 5 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 0 * _particleSize, sizeModifier * 5.5f	*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 3.5f		*		_particleSize, sizeModifier * 9 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2 * _particleSize, sizeModifier * 14 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 6.5f		*		_particleSize, sizeModifier * 11.5f	*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 12 * _particleSize, sizeModifier * 14 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 10.5f	*		_particleSize, sizeModifier * 9 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 14 * _particleSize, sizeModifier * 5.5f	*		-_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 9 * _particleSize, sizeModifier * 5 * -_particleSize));
+
+			shape = new Shape(_position, vertPositions, Shape::ShapeType::Star, _renderer, rotSpeed);
 
 
 			break;

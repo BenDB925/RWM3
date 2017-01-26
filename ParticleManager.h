@@ -54,6 +54,7 @@ public:
 	static ParticleSettings _ROCKET_THRUSTER_PRESET;
 	static ParticleSettings _FOOTSTEPS_PRESET;
 	static ParticleSettings _TRON_PRESET;
+	static ParticleSettings _STAR_PRESET;
 
 	SDL_Color GetColour(float pAliveTime);
 	ParticleManager() {}
@@ -68,6 +69,7 @@ public:
 	void SetUpRocketThruster();
 	void GetDefaultColours();
 	void SetupTron();
+	void SetUpStarPreset();
 	void SetUpFootsteps();
 	void SetUpTexture();
 
@@ -101,6 +103,7 @@ public:
 	float _endingVelocity;
 	Shape::ShapeType _shapeType;
 	float _emissionRate;
+	std::vector<Vector2> _velocityList;
 
 private:
 
@@ -110,7 +113,6 @@ private:
 
 	bool _started;
 	std::vector<ParticleObj *> _particleList;
-	std::vector<Vector2> _velocityList;
 	Vector2 * _positionToParentTo;
 	Vector2 _position;
 	Vector2 _offset;
