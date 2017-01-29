@@ -9,7 +9,7 @@ MenuItem::MenuItem(Vector2 pPos, std::string pVarMess, SDL_Renderer * pRenderer,
 	_func(pFunc),
 	_renderer(pRenderer)
 {
-	_font = TTF_OpenFont("assets/Square.ttf", 2000); //this opens a font style and sets a size
+	_font = TTF_OpenFont("assets/Square.ttf", 20); //this opens a font style and sets a size
 	_varMess = pVarMess;
 
 

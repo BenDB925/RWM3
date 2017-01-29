@@ -208,8 +208,8 @@ void Game::HandleEvents()
 		int mouseY;
 		SDL_GetMouseState(&mouseX, &mouseY);
 
-		_mousePos->x = mouseX;
-		_mousePos->y = mouseY;
+		_mousePos->x = mouseX - 2;
+		_mousePos->y = mouseY + 5;
 			
 		switch(event.type)
 		{

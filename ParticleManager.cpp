@@ -67,6 +67,7 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 	_STAR_PRESET._endingVelocity = 0;
 	_STAR_PRESET._minTTL = 2;
 	_STAR_PRESET._maxTTL = 4;
+	_STAR_PRESET._velVariation = 1;
 }
 
 ParticleManager::~ParticleManager()
@@ -193,6 +194,7 @@ void ParticleManager::GetDefaultColours()
 {
 	_maxTTL = _STAR_PRESET._maxTTL;
 	_minTTL = _STAR_PRESET._minTTL;
+	_emissionRate = 0.005f;
 
 	_colourLerpingList.clear();
 
@@ -232,31 +234,32 @@ void ParticleManager::SetUpStarPreset()
 	_endingVelocity = _STAR_PRESET._endingVelocity;
 	_minTTL = _STAR_PRESET._minTTL;
 	_maxTTL = _STAR_PRESET._maxTTL;
+	_particleVelVariation = _STAR_PRESET._velVariation;
 
 
 	_colourLerpingList.clear();
 
-	Uint8 randomCol1 = rand() % 20 + 235;
-	Uint8 randomCol2 = rand() % 20 + 168;
-	Uint8 randomCol3 = rand() % 20 + 42;
+	Uint8 randomCol1 = 235;
+	Uint8 randomCol2 = 168;
+	Uint8 randomCol3 = 42;
 
 	ColourLerper firstLerp;
 	firstLerp._colour = { randomCol1, randomCol2, randomCol3, 255 };
 	firstLerp._durationOfColour = 0.75f;
 	_colourLerpingList.push_back(firstLerp);
 
-	randomCol1 = rand() % 20 + 230;
-	randomCol2 = rand() % 20 + 220;
-	randomCol3 = rand() % 20 + 135;
+	randomCol1 = 230;
+	randomCol2 = 220;
+	randomCol3 = 135;
 
 	ColourLerper secondLerp;
 	secondLerp._colour = { randomCol1, randomCol2, randomCol3, 255 };
 	secondLerp._durationOfColour = 0.75f;
 	_colourLerpingList.push_back(secondLerp);
 
-	randomCol1 = rand() % 20 + 90;
-	randomCol2 = rand() % 20 + 90;
-	randomCol3 = rand() % 20 + 90;
+	randomCol1 = 90;
+	randomCol2 = 90;
+	randomCol3 = 90;
 
 	ColourLerper thirdLerp;
 	thirdLerp._colour = { randomCol1, randomCol2, randomCol3, 0 };
@@ -295,18 +298,24 @@ std::string ParticleManager::IncrementShapeType()
 		_textureExampleHolder = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
+		if (_emissionRate < 0.005f)
+			_emissionRate = 0.005f;
 		return "Square";
 	case Shape::Square:
 		_shapeType = Shape::Pentagon;
 		_textureExampleHolder = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
+		if (_emissionRate < 0.005f)
+			_emissionRate = 0.005f;
 		return "Pentagon";
 	case Shape::Pentagon:
 		_shapeType = Shape::Star;
 		_textureExampleHolder = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
+		if (_emissionRate < 0.005f)
+			_emissionRate = 0.005f;
 		return "Star";
 	case Shape::Star:
 		SetUpFootsteps();
@@ -328,6 +337,8 @@ std::string ParticleManager::IncrementShapeType()
 		_textureExampleHolder = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
+		if (_emissionRate < 0.005f)
+			_emissionRate = 0.005f;
 		return "Triangle";
 	default:
 		return "";
@@ -347,21 +358,29 @@ std::string ParticleManager::DecrementShapeType()
 		_shapeType = Shape::Triangle;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
+		if (_emissionRate < 0.005f)
+			_emissionRate = 0.005f;
 		return "Triangle";
 	case Shape::Pentagon:
 		_shapeType = Shape::Square;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
+		if (_emissionRate < 0.005f)
+			_emissionRate = 0.005f;
 		return "Square";
 	case Shape::Star:
 		_shapeType = Shape::Pentagon;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
+		if (_emissionRate < 0.005f)
+			_emissionRate = 0.005f;
 		return "Pentagon";
 	case Shape::NULL_SHAPE:
 		_shapeType = Shape::Star;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
+		if (_emissionRate < 0.005f)
+			_emissionRate = 0.005f;
 		return "Star";
 	case Shape::StarPreset:
 		SetUpTexture();
