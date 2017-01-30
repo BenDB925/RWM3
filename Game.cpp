@@ -92,7 +92,7 @@ void Game::LoadContent()
 	settings._rotationSpeed = 10;
 
 	//the type of shape to draw
-	settings._shapeType = Shape::Pentagon;
+	settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
 
 	_particleSys = ParticleManager(settings, _renderer);
 	
