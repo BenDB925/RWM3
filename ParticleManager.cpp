@@ -12,19 +12,18 @@ ParticleManager::ParticleSettings ParticleManager::_STAR_PRESET;
 ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRenderer)
 	:_particleSize(pSettings._particleSize),
 	_colourLerpingList(pSettings._coloursToLerp),
-	_started(true),
+	_shouldSystemEmit(true),
 	_particleList(std::vector<ParticleObj *>()),
 	_positionToParentTo(pSettings._positionToParentTo),
 	_currentVelocity(0, 0),
 	_startingVelocity(pSettings._startingVelocity),
 	_endingVelocity(pSettings._endingVelocity),
-	_accel(0.5f),
 	_particleVelVariation(pSettings._velVariation),
-	_textureExampleHolder(pSettings._texture),
+	_texture(pSettings._texture),
 	_timeSinceEmit(0),
 	_shapeType(pSettings._shapeType),
 	_renderer(pRenderer),
-	_rotationMaxSpeed(pSettings._rotationMaxSpeed),
+	_rotationSpeed(pSettings._rotationSpeed),
 	_emissionRate(pSettings._emissionRate)
 {
 	float timeToLiveTotal = 0;
@@ -70,9 +69,6 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 	_STAR_PRESET._velVariation = 1;
 }
 
-ParticleManager::~ParticleManager()
-{
-}
 
 void ParticleManager::update(float pDT)
 {
@@ -100,7 +96,7 @@ void ParticleManager::update(float pDT)
 	}
 
 
-	if (_started == true)
+	if (_shouldSystemEmit == true)
 	{
 		_timeSinceEmit += pDT;
 
@@ -113,7 +109,7 @@ void ParticleManager::update(float pDT)
 
 	for (int i = 0; i < _particleList.size(); i++)
 	{
-		_particleList[i]->update();
+		_particleList[i]->update(pDT);
 
 		if (_particleList[i]->readyToRespawn())
 		{
@@ -151,11 +147,11 @@ SDL_Color ParticleManager::GetColour(float pAliveTime)
 }
 
 
-void ParticleManager::render(SDL_Renderer * pRenderer)
+void ParticleManager::render()
 {
 	for (int i = 0; i < _particleList.size(); i++)
 	{
-		_particleList[i]->render(pRenderer);
+		_particleList[i]->render(_renderer);
 	}
 }
 
@@ -164,7 +160,7 @@ void ParticleManager::render(SDL_Renderer * pRenderer)
 void ParticleManager::SetUpRocketThruster()
 {
 	_shapeType = Shape::RocketThruster;
-	_textureExampleHolder = nullptr;
+	_texture = nullptr;
 
 	_emissionRate = _ROCKET_THRUSTER_PRESET._emissionRate;
 	_startingVelocity = _ROCKET_THRUSTER_PRESET._startingVelocity;
@@ -216,7 +212,7 @@ void ParticleManager::SetupTron()
 	_shapeType = Shape::Tron;
 	_colourLerpingList.clear();
 	_emissionRate = _TRON_PRESET._emissionRate;
-	_textureExampleHolder = TextureLoader::loadTexture("assets/laser.png", _renderer);
+	_texture = TextureLoader::loadTexture("assets/laser.png", _renderer);
 	_startingVelocity = _TRON_PRESET._startingVelocity;
 	_endingVelocity = _TRON_PRESET._endingVelocity;
 	_minTTL = _TRON_PRESET._minTTL;
@@ -226,7 +222,7 @@ void ParticleManager::SetupTron()
 void ParticleManager::SetUpStarPreset()
 {
 	_shapeType = Shape::StarPreset;
-	_textureExampleHolder = nullptr;
+	_texture = nullptr;
 	
 	_particleSize = _STAR_PRESET._particleSize;
 	_emissionRate = _STAR_PRESET._emissionRate;
@@ -272,7 +268,7 @@ void ParticleManager::SetUpFootsteps()
 	_shapeType = Shape::Footsteps;
 	_colourLerpingList.clear();
 	_emissionRate = _FOOTSTEPS_PRESET._emissionRate;
-	_textureExampleHolder = TextureLoader::loadTexture("assets/footsteps.png", _renderer);
+	_texture = TextureLoader::loadTexture("assets/footsteps.png", _renderer);
 	_startingVelocity = _FOOTSTEPS_PRESET._startingVelocity;
 	_endingVelocity = _FOOTSTEPS_PRESET._endingVelocity;
 }
@@ -280,7 +276,7 @@ void ParticleManager::SetUpFootsteps()
 void ParticleManager::SetUpTexture()
 {
 	_shapeType = Shape::NULL_SHAPE;
-	_textureExampleHolder = TextureLoader::loadTexture("assets/particle.png", _renderer);
+	_texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
 	_emissionRate = 0.002f;
 	_startingVelocity = 150;
 	_endingVelocity = 20;
@@ -295,7 +291,7 @@ std::string ParticleManager::IncrementShapeType()
 	{
 	case Shape::Triangle:
 		_shapeType = Shape::Square;
-		_textureExampleHolder = nullptr;
+		_texture = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
 		if (_emissionRate < 0.005f)
@@ -303,7 +299,7 @@ std::string ParticleManager::IncrementShapeType()
 		return "Square";
 	case Shape::Square:
 		_shapeType = Shape::Pentagon;
-		_textureExampleHolder = nullptr;
+		_texture = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
 		if (_emissionRate < 0.005f)
@@ -311,7 +307,7 @@ std::string ParticleManager::IncrementShapeType()
 		return "Pentagon";
 	case Shape::Pentagon:
 		_shapeType = Shape::Star;
-		_textureExampleHolder = nullptr;
+		_texture = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
 		if (_emissionRate < 0.005f)
@@ -334,7 +330,7 @@ std::string ParticleManager::IncrementShapeType()
 		return "Texture";
 	case Shape::NULL_SHAPE:
 		_shapeType = Shape::Triangle;
-		_textureExampleHolder = nullptr;
+		_texture = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
 		if (_emissionRate < 0.005f)
@@ -580,7 +576,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 	settings._endingVelocity = endingVel;
 	settings._direction = pDir;
 	settings._timeToLive = timeToLive;
-	settings._texture = _textureExampleHolder;
+	settings._texture = _texture;
 	settings._shape = nullptr;
 
 
@@ -589,7 +585,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 		std::vector<Vector2> vertPositions;
 		Shape * shape = nullptr;
 
-		float rotSpeed = ((rand() % 1000 / 1000.0f) * _rotationMaxSpeed * 2) - _rotationMaxSpeed;
+		float rotSpeed = ((rand() % 1000 / 1000.0f) * _rotationSpeed * 2) - _rotationSpeed;
 		float sizeModifier;
 		int randomScale;
 		switch (_shapeType)
@@ -653,7 +649,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 		case Shape::Footsteps:
 			delete shape;
 			settings._size = Vector2(_FOOTSTEPS_PRESET._particleSize, _FOOTSTEPS_PRESET._particleSize);
-			settings._texture = _textureExampleHolder;
+			settings._texture = _texture;
 			break;
 
 		case Shape::RocketThruster:
@@ -696,7 +692,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 		case Shape::Tron:
 			delete shape;
 			settings._size = Vector2(_TRON_PRESET._particleSize, _TRON_PRESET._particleSize);
-			settings._texture = _textureExampleHolder;
+			settings._texture = _texture;
 			break;
 
 		default:

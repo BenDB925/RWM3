@@ -92,7 +92,7 @@ void Game::LoadContent()
 	settings._texture = TextureLoader::loadTexture("assets/laser.png", _renderer);
 	settings._shapeType =  Shape::ShapeType::Pentagon;
 
-	settings._rotationMaxSpeed = 0.05f;
+	settings._rotationSpeed = 0.05f;
 
 
 	ParticleManager::ColourLerper firstLerp;
@@ -187,7 +187,7 @@ void Game::Render()
 
 
 	//draw
-	_particleSys.render(_renderer);
+	_particleSys.render();
 	SDL_Rect menuRect{ 0, 0, 1440, 15 };
 	MenuManager::Instance()->Draw();
 

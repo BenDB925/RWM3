@@ -20,8 +20,8 @@ Shape::~Shape()
 
 void Shape::Draw()
 {
-	short * x = nullptr;
-	short * y = nullptr;
+	short * x; //filledpolygonRGBA requires to be passed in an array of shorts, so I have one array for each axis.
+	short * y;
 
 	int numVerts;
 
@@ -78,7 +78,7 @@ void Shape::Update(Vector2 _velocity, float pDT)
 
 void Shape::Rotate(float pDT)
 {
-	_angle = _rotSpeed;
+	_angle = _rotSpeed * pDT;
 
 	for (int i = 0; i < _vertices.size(); ++i)
 	{

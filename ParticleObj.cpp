@@ -1,5 +1,4 @@
 #include "ParticleObj.h"
-#include "FramerateCounter.h"
 #include "Shape.h"
 #include "ParticleManager.h"
 
@@ -33,17 +32,18 @@ ParticleObj::~ParticleObj()
 	delete _shape;
 }
 
-void ParticleObj::update()
+void ParticleObj::update(float pDT)
 {
-	_timeAlive += FramerateCounter::_DT;
+	_timeAlive += pDT;
 
 	if(_timeAlive > _timeToLive)
 		return;
 
+	//lerp velocity
 	_currentVelocity = (_endingVelocity - _startingVelocity) * (_timeAlive / _timeToLive) + _startingVelocity;
 
-	_position.x += _currentVelocity.x * FramerateCounter::_DT;
-	_position.y += _currentVelocity.y * FramerateCounter::_DT;
+	_position.x += _currentVelocity.x * pDT;
+	_position.y += _currentVelocity.y * pDT;
 
 	if (_shape != nullptr)
 	{
@@ -52,7 +52,7 @@ void ParticleObj::update()
 		if ((col.r == 0 && col.g == 0 && col.b == 0 && col.a == 0) == false)
 			_shape->SetColour(col);
 
-		_shape->Update(_currentVelocity * FramerateCounter::_DT, FramerateCounter::_DT);
+		_shape->Update(_currentVelocity * pDT, pDT);
 	}
 }
 
@@ -68,10 +68,6 @@ void ParticleObj::render(SDL_Renderer * pRenderer)
 		_rect.x = _position.x;
 		_rect.y = _position.y;
 		SDL_SetTextureAlphaMod(_texture, 255 - ((_timeAlive / _timeToLive) * 255));
-
-		//SDL_RenderCopy(pRenderer, _texture, NULL, &_rect);
-
-
 		SDL_RenderCopyEx(pRenderer, _texture, NULL, &_rect, _angle, NULL, SDL_FLIP_NONE);
 	}
 	else
