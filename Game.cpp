@@ -91,9 +91,6 @@ void Game::LoadContent()
 	//the rotation speed of the particles
 	settings._rotationSpeed = 10;
 
-	//the type of shape to draw
-	settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
-
 	_particleSys = ParticleManager(settings, _renderer);
 	
 

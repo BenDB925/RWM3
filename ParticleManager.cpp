@@ -467,7 +467,9 @@ std::string ParticleManager::ChangeEmissionRate(ParticleManager * pManager, bool
 		pManager->_emissionRate += 0.005f;
 	else if (pManager->_emissionRate > 0.005f)
 		pManager->_emissionRate -= 0.005f;
-	else
+	
+
+	if(pManager->_emissionRate < 0.005f)
 		pManager->_emissionRate = 0.005f;
 
 	return std::to_string(pManager->_emissionRate);
