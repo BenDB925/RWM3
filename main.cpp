@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
 	ParticleManager _particleSys = ParticleManager(settings, _renderer);
 
 	while(true)	{
-		_particleSys.update(0.01f);
+		_particleSys.update(0.01f); // replace this 0.01f with delta time
 		position->x += 0.25f;
 
 		SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);

@@ -87,12 +87,6 @@ public:
 		float _emissionRate;
 
 		/// <summary>
-		/// The difference in time to live values for the particles. 
-		/// Default Value:  0
-		/// </summary>
-		float _timeToLiveVariation;
-
-		/// <summary>
 		/// The minimum time to live for the particles
 		/// Default Value:  the length of the colour transitions supplied, if no transitions are supplied, it is the length of the default transition, which lasts for 2 seconds
 		/// </summary>

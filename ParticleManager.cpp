@@ -46,15 +46,18 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 		_colourLerpingList.push_back(white);
 	}
 
-	if (_minTTL == -1 && _maxTTL == -1)
+	if (_minTTL == -1 || _maxTTL == -1)
 	{
 		for (int i = 0; i < _colourLerpingList.size(); ++i)
 		{
 			timeToLiveTotal += _colourLerpingList.at(i)._durationOfColour;
 		}
 
-		_minTTL = timeToLiveTotal - pSettings._timeToLiveVariation;
-		_maxTTL = timeToLiveTotal;
+		if(_minTTL == -1)
+			_minTTL = timeToLiveTotal;
+		
+		if(_maxTTL == - 1)
+			_maxTTL = timeToLiveTotal;
 	}
 
 
