@@ -52,85 +52,85 @@ public:
 
 		/// <summary>
 		/// This is a pointer to a Vector2 that the particleManager will be parented to. This can be a static value, or a changing one; the ParticleManager will follow it.
-		/// Defualt Value:  new Vector2(300, 300)
+		/// Default Value:  new Vector2(300, 300)
 		/// </summary>
 		Vector2 * _positionToParentTo;
 
 		/// <summary>
 		/// If you want the ParticleManager to be offsetted from the _positionToParentTo, this value will be added onto the position.
-		/// Defualt Value:  Vector2(0,0)
+		/// Default Value:  Vector2(0,0)
 		/// </summary>
 		Vector2 _offsetFromParent;
 
 		/// <summary>
 		/// The starting velocity of particles.
-		/// Defualt Value:  0
+		/// Default Value:  0
 		/// </summary>
 		float _startingVelocity;
 
 		/// <summary>
 		/// The ending velocity of particles.
-		/// Defualt Value:  0
+		/// Default Value:  0
 		/// </summary>
 		float _endingVelocity;
 
 		/// <summary>
 		/// The variation in velocity for the particles. Increasing this value will increase the angle of the "cone" particles will shoot off in
-		/// Defualt Value:  0.25f
+		/// Default Value:  0.25f
 		/// </summary>
 		float _velVariation;
 
 		/// <summary>
 		/// The time between emitting a particle - be careful when edditing this as it will have massive effect on framerate! 
-		/// Defualt Value:  0.02f
+		/// Default Value:  0.02f
 		/// </summary>
 		float _emissionRate;
 
 		/// <summary>
 		/// The difference in time to live values for the particles. 
-		/// Defualt Value:  0
+		/// Default Value:  0
 		/// </summary>
 		float _timeToLiveVariation;
 
 		/// <summary>
 		/// The minimum time to live for the particles
-		/// Defualt Value:  the length of the colour transitions supplied, if no transitions are supplied, it is the length of the default transition, which lasts for 2 seconds
+		/// Default Value:  the length of the colour transitions supplied, if no transitions are supplied, it is the length of the default transition, which lasts for 2 seconds
 		/// </summary>
 		float _minTTL;
 
 		/// <summary>
 		/// The maximum time to live for the particles
-		/// Defualt Value:  the length of the colour transitions supplied, if no transitions are supplied, it is the length of the default transition, which lasts for 2 seconds
+		/// Default Value:  the length of the colour transitions supplied, if no transitions are supplied, it is the length of the default transition, which lasts for 2 seconds
 		/// </summary>
 		float _maxTTL;
 
 		/// <summary>
 		/// The size of the particles.
-		/// Defualt Value:  1.6f
+		/// Default Value:  1.6f
 		/// </summary>
 		float _particleSize;
 
 		/// <summary>
 		/// The texture of the particle. (Particles either have a texture or a shape)
-		/// Defualt Value:  nullptr
+		/// Default Value:  nullptr
 		/// </summary>
 		SDL_Texture * _texture;
 
 		/// <summary>
 		/// The shape of the particle. (Particles either have a texture or a shape)
-		/// Defualt Value:  Pentagon
+		/// Default Value:  Pentagon
 		/// </summary>
 		Shape::ShapeType _shapeType;
 
 		/// <summary>
 		/// A vector of ColourLerper's. This contains all the colours your shapes will transition between. Does not apply to textures.
-		/// Defualt Value:  white for 2 seconds
+		/// Default Value:  white for 2 seconds
 		/// </summary>
 		std::vector<ColourLerper> _coloursToLerp;
 
 		/// <summary>
 		/// The speed your shapes will rotate at.
-		/// Defualt Value:  0.0f
+		/// Default Value:  0.0f
 		/// </summary>
 		float _rotationSpeed;
 	};
@@ -184,34 +184,6 @@ public:
 	/// <param name="pDT">The delta time in ms</param>
 	void update(float pDT);
 
-	void SetUpRocketThruster();
-	void GetDefaultColours();
-	void SetupTron();
-	void SetUpStarPreset();
-	void SetUpFootsteps();
-	void SetUpTexture();
-
-
-	//button functions
-	std::string IncrementShapeType();
-	std::string DecrementShapeType();
-	static std::string ChangeEmissionRate(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeMinTimeToLive(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeMaxTimeToLive(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeStartingVelocity(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeEndingVelocity(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeConeAngle(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeParticleType(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeParticleSize(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeStartingRColour(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeStartingGColour(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeStartingBColour(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeStartingAColour(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeEndingRColour(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeEndingGColour(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeEndingBColour(ParticleManager * pManager, bool pIncrement);
-	static std::string ChangeEndingAColour(ParticleManager * pManager, bool pIncrement);
-
 	/// <summary>
 	/// This will render all the ParticleObj's to the screen
 	/// </summary>
@@ -223,10 +195,16 @@ public:
 	void TurnOnOff() { _shouldSystemEmit = !_shouldSystemEmit; }
 
 
+
+private:
+	
+
 	/// <summary>
-	/// A vector holding all the colour transitions the particles will take
+	/// This will create a particle, and initialise it's settings
 	/// </summary>
-	std::vector<ColourLerper> _colourLerpingList;
+	/// <param name="pDir">the direction the particle should be moving in. This by default is the opposite direction of the particle manager</param>
+	void SpawnParticle(Vector2 pDir);
+
 
 	/// <summary>
 	/// The minimum time to live for particles
@@ -244,23 +222,9 @@ public:
 	float _particleSize;
 
 	/// <summary>
-	/// The ending velocity of the particles
+	/// A vector holding all the colour transitions the particles will take
 	/// </summary>
-	Shape::ShapeType _shapeType;
-
-	/// <summary>
-	/// This is a list holding the previous velocities, I use this to stop sudden changes to the particle emission direction, instead it's an average of the previous X velocities
-	/// </summary>
-	std::vector<Vector2> _velocityList;
-
-private:
-	
-
-	/// <summary>
-	/// This will create a particle, and initialise it's settings
-	/// </summary>
-	/// <param name="pDir">the direction the particle should be moving in. This by default is the opposite direction of the particle manager</param>
-	void SpawnParticle(Vector2 pDir);
+	std::vector<ColourLerper> _colourLerpingList;
 
 	/// <summary>
 	/// The variation in velocity that the particles will spawn with. Modifiying this value will change the angle of the "cone" that the particles shoot off in
@@ -278,10 +242,21 @@ private:
 	float _endingVelocity;
 
 	/// <summary>
+	/// The ending velocity of the particles
+	/// </summary>
+	Shape::ShapeType _shapeType;
+
+	/// <summary>
 	/// The time in ms between the 
 	/// </summary>
 	float _emissionRate;
-	
+
+	/// <summary>
+	/// This is a list holding the previous velocities, I use this to stop sudden changes to the particle emission direction, instead it's an average of the previous X velocities
+	/// </summary>
+	std::vector<Vector2> _velocityList;
+
+
 	/// <summary>
 	/// This holds the texture of the particles, if there is one.
 	/// </summary>

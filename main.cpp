@@ -1,68 +1,37 @@
-
 #define SDL_MAIN_HANDLED
-#include <SDL.h>
-#include <iostream>
-#include "Game.h"
-#include <thread>
-#include <string>
-#include "Debug.h"
+#include "ParticleManager.h"
 
-#pragma comment(lib,"SDL2.lib") 
-#pragma comment(lib, "SDL2_image.lib")
-#pragma comment(lib,"SDL2_gfx.dll") 
-#pragma comment(lib, "SDL2_gfx.lib")
-#pragma comment(lib,"SDL2_ttf.lib") 
-#pragma comment(lib, "SDL2_ttf.dll")
 
-using namespace std;
+int main(int argc, char** argv) {
 
-class Process
-{
-public:
-	Process() {}
-	Process(const Game& game) : m_Game(game)
+	SDL_Renderer * _renderer = nullptr;
+
+	if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
 	{
+		SDL_Window *_window = SDL_CreateWindow("testScene", 0, 100, 1440, 900, NULL);
 
-	}
-	~Process() {};
-	void run()
-	{
-		while (m_Game.IsRunning())
+		if (_window != nullptr)
 		{
-			//DEBUG_MSG("Thread Running");
-		}
-	}
-private:
-	Game m_Game;
-};
+			_renderer = SDL_CreateRenderer(_window, -1, 0);		}
+	}
 
-int main(int argc, char** argv) {
+	Vector2 * position = new Vector2(300, 200);
 
-	DEBUG_MSG("Game Object Created");
+	
+	ParticleManager::LoadPresets(_renderer);
+	ParticleManager::ParticleSettings settings = ParticleManager::_ROCKET_THRUSTER_PRESET;
+	settings._positionToParentTo = position;
 
-	Game* game = new Game();
+	ParticleManager _particleSys = ParticleManager(settings, _renderer);
 
-	//Adjust screen positions as needed
-	game->Initialize("Trail Renderer Demo", 300, 100, 1440, 900, SDL_WINDOW_INPUT_FOCUS);
-	DEBUG_MSG("Game Initialised");
+	while(true)	{
+		_particleSys.update(0.01f);
+		position->x += 0.25f;
 
-	game->LoadContent();
+		SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
+		SDL_RenderClear(_renderer);		_particleSys.render();
+		SDL_RenderPresent(_renderer);	}
 
-	thread t1(&Process::run, Process((*(game)))); //Passing references
-	t1.detach(); //detaches from SDL mainline
-
-	DEBUG_MSG("Game Loop Starting......");
-	while (game->IsRunning())
-	{
-		game->HandleEvents();
-		game->Update();
-		game->Render();
-	}
-
-	DEBUG_MSG("Calling Cleanup");
-	game->CleanUp();
-	game->UnloadContent();
 
 	return 0;
 }
-
