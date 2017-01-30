@@ -10,22 +10,44 @@ ParticleManager::ParticleSettings ParticleManager::_TRON_PRESET;
 ParticleManager::ParticleSettings ParticleManager::_STAR_PRESET;
 
 ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRenderer)
-	:_particleSize(pSettings._particleSize),
-	_colourLerpingList(pSettings._coloursToLerp),
+	:_colourLerpingList(pSettings._coloursToLerp),
+	_particleSize(pSettings._particleSize),
+	_shapeType(pSettings._shapeType),
+	_particleVelVariation(pSettings._velVariation),
+	_startingVelocity(pSettings._startingVelocity),
+	_endingVelocity(pSettings._endingVelocity),
+	_emissionRate(pSettings._emissionRate),
+	_texture(pSettings._texture),
 	_shouldSystemEmit(true),
 	_particleList(std::vector<ParticleObj *>()),
 	_positionToParentTo(pSettings._positionToParentTo),
 	_currentVelocity(0, 0),
-	_startingVelocity(pSettings._startingVelocity),
-	_endingVelocity(pSettings._endingVelocity),
-	_particleVelVariation(pSettings._velVariation),
-	_texture(pSettings._texture),
 	_timeSinceEmit(0),
-	_shapeType(pSettings._shapeType),
 	_renderer(pRenderer),
-	_rotationSpeed(pSettings._rotationSpeed),
-	_emissionRate(pSettings._emissionRate)
+	_rotationSpeed(pSettings._rotationSpeed)
 {
+	if (_positionToParentTo == nullptr)
+		_positionToParentTo = new Vector2(300, 300);
+
+	if (_texture != nullptr)
+		_shapeType = Shape::NULL_SHAPE;
+
+
+	if (_colourLerpingList.size() == 0)
+	{
+		ColourLerper white = ColourLerper();
+		white._colour = { 255,255,255,255 };
+		white._durationOfColour = 2;
+
+		_colourLerpingList.push_back(white);
+
+		ColourLerper black = ColourLerper();
+		black._colour = { 0,0,0,255 };
+		black._durationOfColour = 2;
+
+		_colourLerpingList.push_back(black);
+	}
+
 	float timeToLiveTotal = 0;
 
 	for (int i = 0; i < _colourLerpingList.size(); ++i)
@@ -36,19 +58,34 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 	_minTTL = timeToLiveTotal - pSettings._timeToLiveVariation;
 	_maxTTL = timeToLiveTotal;
 
+}
 
+
+void ParticleManager::LoadPresets(SDL_Renderer * pRenderer)
+{
 	_FOOTSTEPS_PRESET = ParticleSettings();
 	_FOOTSTEPS_PRESET._particleSize = 25;
 	_FOOTSTEPS_PRESET._emissionRate = 0.424f;
 	_FOOTSTEPS_PRESET._startingVelocity = 0;
 	_FOOTSTEPS_PRESET._endingVelocity = 0;
+	_FOOTSTEPS_PRESET._shapeType = Shape::Footsteps;
+	_FOOTSTEPS_PRESET._texture = TextureLoader::loadTexture("assets/footsteps.png", pRenderer);
 
 	_ROCKET_THRUSTER_PRESET = ParticleSettings();
 	_ROCKET_THRUSTER_PRESET._particleSize = 3;
-	_ROCKET_THRUSTER_PRESET._emissionRate = 0.005f;
+	_ROCKET_THRUSTER_PRESET._emissionRate = 0.003f;
 	_ROCKET_THRUSTER_PRESET._startingVelocity = 150;
 	_ROCKET_THRUSTER_PRESET._endingVelocity = 0;
-	_ROCKET_THRUSTER_PRESET._velVariation = 0.3f;
+	_ROCKET_THRUSTER_PRESET._velVariation = 0.5f;
+	_ROCKET_THRUSTER_PRESET._shapeType = Shape::RocketThruster;
+
+	_ROCKET_THRUSTER_PRESET._coloursToLerp.clear();
+
+
+	_ROCKET_THRUSTER_PRESET._minTTL = 2.0f;
+	_ROCKET_THRUSTER_PRESET._maxTTL = 2.1f;
+
+
 
 	_TRON_PRESET = ParticleSettings();
 	_TRON_PRESET._particleSize = 6;
@@ -58,6 +95,8 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 	_TRON_PRESET._velVariation = 0.0f;
 	_TRON_PRESET._minTTL = 4;
 	_TRON_PRESET._maxTTL = 4;
+	_TRON_PRESET._shapeType = Shape::Tron;
+	_TRON_PRESET._texture = TextureLoader::loadTexture("assets/laser.png", pRenderer);
 
 	_STAR_PRESET = ParticleSettings();
 	_STAR_PRESET._particleSize = 2.5f;
@@ -67,8 +106,8 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 	_STAR_PRESET._minTTL = 2;
 	_STAR_PRESET._maxTTL = 4;
 	_STAR_PRESET._velVariation = 1;
+	_STAR_PRESET._shapeType = Shape::StarPreset;
 }
-
 
 void ParticleManager::update(float pDT)
 {
@@ -130,7 +169,16 @@ SDL_Color ParticleManager::GetColour(float pAliveTime)
 	}
 
 	if (indexOfColour == _colourLerpingList.size())
-		return{ 0, 0, 0, 0 };
+	{
+		if (_colourLerpingList.size() > 0)
+		{
+			return _colourLerpingList.at(_colourLerpingList.size() - 1)._colour;
+		}
+		else
+		{
+			return{ 0,0,0,0 };
+		}
+	}
 
 	indexOfColour -= 1;
 	if (indexOfColour < 0)
@@ -138,10 +186,25 @@ SDL_Color ParticleManager::GetColour(float pAliveTime)
 
 	float percentThroughThisLerp = 1 - ((totalTime - pAliveTime) / _colourLerpingList.at(indexOfColour)._durationOfColour);
 
-	float lerpedR = _colourLerpingList.at(indexOfColour)._colour.r + ((_colourLerpingList.at(indexOfColour + 1)._colour.r - _colourLerpingList.at(indexOfColour)._colour.r)) * percentThroughThisLerp;
-	float lerpedG = _colourLerpingList.at(indexOfColour)._colour.g + ((_colourLerpingList.at(indexOfColour + 1)._colour.g - _colourLerpingList.at(indexOfColour)._colour.g)) * percentThroughThisLerp;
-	float lerpedB = _colourLerpingList.at(indexOfColour)._colour.b + ((_colourLerpingList.at(indexOfColour + 1)._colour.b - _colourLerpingList.at(indexOfColour)._colour.b)) * percentThroughThisLerp;
-	float lerpedA = _colourLerpingList.at(indexOfColour)._colour.a + ((_colourLerpingList.at(indexOfColour + 1)._colour.a - _colourLerpingList.at(indexOfColour)._colour.a)) * percentThroughThisLerp;
+	float lerpedR;
+	float lerpedG;
+	float lerpedB;
+	float lerpedA;
+
+	if(percentThroughThisLerp > 0.95f)
+	{
+		lerpedR = _colourLerpingList.at(indexOfColour + 1)._colour.r;
+		lerpedG = _colourLerpingList.at(indexOfColour + 1)._colour.g;
+		lerpedB = _colourLerpingList.at(indexOfColour + 1)._colour.b;
+		lerpedA = _colourLerpingList.at(indexOfColour + 1)._colour.a;
+	}
+	else
+	{
+		lerpedR = _colourLerpingList.at(indexOfColour)._colour.r + ((_colourLerpingList.at(indexOfColour + 1)._colour.r - _colourLerpingList.at(indexOfColour)._colour.r)) * percentThroughThisLerp;
+		lerpedG = _colourLerpingList.at(indexOfColour)._colour.g + ((_colourLerpingList.at(indexOfColour + 1)._colour.g - _colourLerpingList.at(indexOfColour)._colour.g)) * percentThroughThisLerp;
+		lerpedB = _colourLerpingList.at(indexOfColour)._colour.b + ((_colourLerpingList.at(indexOfColour + 1)._colour.b - _colourLerpingList.at(indexOfColour)._colour.b)) * percentThroughThisLerp;
+		lerpedA = _colourLerpingList.at(indexOfColour)._colour.a + ((_colourLerpingList.at(indexOfColour + 1)._colour.a - _colourLerpingList.at(indexOfColour)._colour.a)) * percentThroughThisLerp;
+	}
 
 	return{ static_cast<Uint8>(lerpedR), static_cast<Uint8>(lerpedG), static_cast<Uint8>(lerpedB), static_cast<Uint8>(lerpedA) };
 }
@@ -176,14 +239,17 @@ void ParticleManager::SetUpRocketThruster()
 	_colourLerpingList.push_back(firstLerp);
 
 	ColourLerper secondLerp;
-	secondLerp._colour = { 255, 160, 37, 255 };
-	secondLerp._durationOfColour = 0.1f;
+	secondLerp._colour = { 255, 160, 37, 180 };
+	secondLerp._durationOfColour = 0.6f;
 	_colourLerpingList.push_back(secondLerp);
 
 	ColourLerper thirdLerp;
 	thirdLerp._colour = { 100, 100, 100, 0 };
-	thirdLerp._durationOfColour = 1.5f;
+	thirdLerp._durationOfColour = 1.0f;
 	_colourLerpingList.push_back(thirdLerp);
+
+	_minTTL = _ROCKET_THRUSTER_PRESET._minTTL;
+	_maxTTL = _ROCKET_THRUSTER_PRESET._maxTTL;
 }
 
 void ParticleManager::GetDefaultColours()
@@ -310,15 +376,15 @@ std::string ParticleManager::IncrementShapeType()
 		_texture = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
-		if (_emissionRate < 0.005f)
-			_emissionRate = 0.005f;
+		if (_emissionRate <0.005f)
+			_emissionRate =0.005f;
 		return "Star";
 	case Shape::Star:
 		SetUpFootsteps();
 		return "Footsteps";
 	case Shape::Footsteps:
 		SetUpRocketThruster();
-		return "RocketThruster";
+		return "Rocket Thruster";
 	case Shape::RocketThruster:
 		SetupTron();
 		return "Tron";
@@ -333,8 +399,8 @@ std::string ParticleManager::IncrementShapeType()
 		_texture = nullptr;
 		if (_colourLerpingList.size() == 0)
 			GetDefaultColours();
-		if (_emissionRate < 0.005f)
-			_emissionRate = 0.005f;
+		if (_emissionRate < 0.003f)
+			_emissionRate = 0.003f;
 		return "Triangle";
 	default:
 		return "";
@@ -389,7 +455,7 @@ std::string ParticleManager::DecrementShapeType()
 		return "Foot Steps";
 	case Shape::Tron:
 		SetUpRocketThruster();
-		return "RocketThruster";
+		return "Rocket Thruster";
 	default:
 		return "";
 	}
@@ -402,7 +468,7 @@ std::string ParticleManager::ChangeEmissionRate(ParticleManager * pManager, bool
 	else if (pManager->_emissionRate > 0.005f)
 		pManager->_emissionRate -= 0.005f;
 	else
-		pManager->_emissionRate = 0.001f;
+		pManager->_emissionRate = 0.005f;
 
 	return std::to_string(pManager->_emissionRate);
 }
@@ -415,6 +481,9 @@ std::string ParticleManager::ChangeMinTimeToLive(ParticleManager * pManager, boo
 	else
 		pManager->_minTTL -= 0.2f;
 
+	if (pManager->_minTTL < 0)
+		pManager->_minTTL = 0;
+
 	return std::to_string(pManager->_minTTL);
 }
 
@@ -425,6 +494,9 @@ std::string ParticleManager::ChangeMaxTimeToLive(ParticleManager* pManager, bool
 		pManager->_maxTTL += 0.2f;
 	else
 		pManager->_maxTTL -= 0.2f;
+
+	if (pManager->_maxTTL < 0)
+		pManager->_maxTTL = 0;
 
 	return std::to_string(pManager->_maxTTL);
 }
@@ -456,6 +528,9 @@ std::string ParticleManager::ChangeConeAngle(ParticleManager* pManager, bool pIn
 	else
 		pManager->_particleVelVariation -= 0.1f;
 
+	if (pManager->_particleVelVariation < 0)
+		pManager->_particleVelVariation = 0;
+
 	return std::to_string(pManager->_particleVelVariation);
 }
 
@@ -470,9 +545,12 @@ std::string ParticleManager::ChangeParticleType(ParticleManager* pManager, bool 
 std::string ParticleManager::ChangeParticleSize(ParticleManager* pManager, bool pIncrement)
 {
 	if (pIncrement)
-		pManager->_particleSize += 0.5f;
+		pManager->_particleSize += 0.02f;
 	else
-		pManager->_particleSize -= 0.5f;
+		pManager->_particleSize -= 0.02f;
+
+	if(pManager->_particleSize < 0.02f)
+		pManager->_particleSize = 0.02f;
 
 	return std::to_string(pManager->_particleSize);
 }
@@ -594,9 +672,9 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 		case Shape::Triangle:
 
 			sizeModifier = 2.5f;
-			vertPositions.push_back(Vector2(0 * _particleSize, -sizeModifier * _particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 2 * _particleSize, -sizeModifier * _particleSize));
-			vertPositions.push_back(Vector2(0 * _particleSize, sizeModifier * _particleSize));
+			vertPositions.push_back(Vector2(0			 * _particleSize,		-sizeModifier * _particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2 * _particleSize,	-sizeModifier * _particleSize));
+			vertPositions.push_back(Vector2(0			 * _particleSize,		 sizeModifier * _particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Triangle, _renderer, rotSpeed);
 
@@ -607,8 +685,8 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			sizeModifier = 1.5f;
 			vertPositions.push_back(Vector2(-sizeModifier		* _particleSize, -sizeModifier * _particleSize));
 			vertPositions.push_back(Vector2(sizeModifier		* _particleSize, -sizeModifier * _particleSize));
-			vertPositions.push_back(Vector2(sizeModifier		* _particleSize, sizeModifier * _particleSize));
-			vertPositions.push_back(Vector2(-sizeModifier		* _particleSize, sizeModifier * _particleSize));
+			vertPositions.push_back(Vector2(sizeModifier		* _particleSize, sizeModifier  * _particleSize));
+			vertPositions.push_back(Vector2(-sizeModifier		* _particleSize, sizeModifier  * _particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Square, _renderer, rotSpeed);
 			break;
@@ -616,11 +694,11 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 		case Shape::Pentagon:
 
 			sizeModifier = 1.5f;
-			vertPositions.push_back(Vector2(sizeModifier * 0 * _particleSize, sizeModifier * 0 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 2 * _particleSize, sizeModifier * 0 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 2.6f		*		_particleSize, sizeModifier * 2 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 1 * _particleSize, sizeModifier * 3.1f *		-_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * -0.64f	*		_particleSize, sizeModifier * 2 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 0	 * _particleSize, sizeModifier * 0		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2	 * _particleSize, sizeModifier * 0		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2.6f	 * _particleSize, sizeModifier * 2		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 1     * _particleSize, sizeModifier * 3.1f	* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * -0.64f* _particleSize, sizeModifier * 2		* -_particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Pentagon, _renderer, rotSpeed);
 			break;
@@ -628,16 +706,16 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 		case Shape::Star:
 
 			sizeModifier = 0.4f;
-			vertPositions.push_back(Vector2(sizeModifier * 6.5		*		_particleSize, sizeModifier * 0 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 5 * _particleSize, sizeModifier * 5 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 0 * _particleSize, sizeModifier * 5.5f	*		-_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 3.5f		*		_particleSize, sizeModifier * 9 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 2 * _particleSize, sizeModifier * 14 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 6.5f		*		_particleSize, sizeModifier * 11.5f	*		-_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 12 * _particleSize, sizeModifier * 14 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 10.5f	*		_particleSize, sizeModifier * 9 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 14 * _particleSize, sizeModifier * 5.5f	*		-_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 9 * _particleSize, sizeModifier * 5 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 6.5		* _particleSize, sizeModifier * 0		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 5		* _particleSize, sizeModifier * 5		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 0		* _particleSize, sizeModifier * 5.5f	* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 3.5f		* _particleSize, sizeModifier * 9		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2		* _particleSize, sizeModifier * 14		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 6.5f		* _particleSize, sizeModifier * 11.5f	* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 12		* _particleSize, sizeModifier * 14		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 10.5f	* _particleSize, sizeModifier * 9		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 14		* _particleSize, sizeModifier * 5.5f	* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 9		* _particleSize, sizeModifier * 5		* -_particleSize));
 
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Star, _renderer, rotSpeed);
@@ -657,11 +735,11 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			settings._size = Vector2(_ROCKET_THRUSTER_PRESET._particleSize, _ROCKET_THRUSTER_PRESET._particleSize);
 
 			sizeModifier = 1.5f;
-			vertPositions.push_back(Vector2(sizeModifier * 0		* _particleSize, sizeModifier * 0 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 2		* _particleSize, sizeModifier * 0 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 2.6f		* _particleSize, sizeModifier * 2 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 1		* _particleSize, sizeModifier * 3.1f *		-_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * -0.64f	* _particleSize, sizeModifier * 2 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 0		* _particleSize, sizeModifier * 0	 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2		* _particleSize, sizeModifier * 0	 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2.6f		* _particleSize, sizeModifier * 2	 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 1		* _particleSize, sizeModifier * 3.1f * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * -0.64f	* _particleSize, sizeModifier * 2	 * -_particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Pentagon, _renderer, rotSpeed);
 
@@ -674,16 +752,16 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			randomScale = rand() % 10;
 
 			sizeModifier = 0.2f + (0.05f * randomScale);
-			vertPositions.push_back(Vector2(sizeModifier * 6.5		*		_particleSize, sizeModifier * 0 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 5 * _particleSize, sizeModifier * 5 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 0 * _particleSize, sizeModifier * 5.5f	*		-_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 3.5f		*		_particleSize, sizeModifier * 9 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 2 * _particleSize, sizeModifier * 14 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 6.5f		*		_particleSize, sizeModifier * 11.5f	*		-_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 12 * _particleSize, sizeModifier * 14 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 10.5f	*		_particleSize, sizeModifier * 9 * -_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 14 * _particleSize, sizeModifier * 5.5f	*		-_particleSize));
-			vertPositions.push_back(Vector2(sizeModifier * 9 * _particleSize, sizeModifier * 5 * -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 6.5		* _particleSize, sizeModifier		* 0		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 5		* _particleSize, sizeModifier		* 5		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 0		* _particleSize, sizeModifier		* 5.5f	* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 3.5f		* _particleSize, sizeModifier		* 9		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 2		* _particleSize, sizeModifier		* 14	* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 6.5f		* _particleSize, sizeModifier		* 11.5f	* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 12		* _particleSize, sizeModifier		* 14	* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 10.5f	* _particleSize, sizeModifier		* 9		* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 14		* _particleSize, sizeModifier		* 5.5f	* -_particleSize));
+			vertPositions.push_back(Vector2(sizeModifier * 9		* _particleSize, sizeModifier		* 5		* -_particleSize));
 
 			shape = new Shape(_position, vertPositions, Shape::ShapeType::Star, _renderer, rotSpeed);
 

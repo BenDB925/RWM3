@@ -30,11 +30,11 @@ bool Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 		_window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 		_surface = SDL_GetWindowSurface(_window);
 
-		if(_window != 0)
+		if(_window != nullptr)
 		{
 			DEBUG_MSG("Window creation success");
 			_renderer = SDL_CreateRenderer(_window, -1, 0);
-			if(_renderer != 0)
+			if(_renderer != nullptr)
 			{
 				DEBUG_MSG("Renderer creation success");
 				SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 255);
@@ -73,11 +73,11 @@ void Game::LoadContent()
 
 	_menuTex = TextureLoader::loadTexture("assets/menu.png", _renderer);
 
+	ParticleManager::LoadPresets(_renderer);
 
 	ParticleManager::ParticleSettings settings = ParticleManager::ParticleSettings();
 	//position of the particle manager
 	settings._positionToParentTo = _mousePos;
-	settings._offsetFromParent = Vector2(0, 0);
 	//initial velocity of the particles
 	settings._startingVelocity = 150;
 	//final velocity of the particles
@@ -85,26 +85,14 @@ void Game::LoadContent()
 	//the time between particles being emitted
 	settings._emissionRate = 0.005f;
 
+	//the variation in seconds of the time to live variables
 	settings._timeToLiveVariation = 2;
 
-	//settings._texture = TextureLoader::loadTexture("assets/particle.png", _renderer);
-	//settings._texture = TextureLoader::loadTexture("assets/footsteps.png", _renderer);
-	settings._texture = TextureLoader::loadTexture("assets/laser.png", _renderer);
-	settings._shapeType =  Shape::ShapeType::Pentagon;
+	//the rotation speed of the particles
+	settings._rotationSpeed = 10;
 
-	settings._rotationSpeed = 0.05f;
-
-
-	ParticleManager::ColourLerper firstLerp;
-	firstLerp._colour = { 255, 255, 0, 255 };
-	firstLerp._durationOfColour = 1.5f;
-	settings._coloursToLerp.push_back(firstLerp);
-
-
-	ParticleManager::ColourLerper secondLerp;
-	secondLerp._colour = { 173, 130, 54, 0 };
-	secondLerp._durationOfColour = 2.5f;
-	settings._coloursToLerp.push_back(secondLerp);
+	//the type of shape to draw
+	settings._shapeType = Shape::Pentagon;
 
 	_particleSys = ParticleManager(settings, _renderer);
 	
@@ -175,6 +163,7 @@ void Game::Update()
 		case Right:
 			_tronPos.x += _TRON_VEL;
 			break;
+		default: break;
 		}
 	}
 
@@ -191,7 +180,7 @@ void Game::Render()
 	SDL_Rect menuRect{ 0, 0, 1440, 15 };
 	MenuManager::Instance()->Draw();
 
-	SDL_RenderCopy(_renderer, _menuTex, NULL, &menuRect);
+	SDL_RenderCopy(_renderer, _menuTex, nullptr, &menuRect);
 	SDL_RenderPresent(_renderer);
 }
 
