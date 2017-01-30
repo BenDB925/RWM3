@@ -38,7 +38,6 @@ public:
 			_endingVelocity(0),
 			_velVariation(0.25f),
 			_emissionRate(0.02f),
-			_timeToLiveVariation(0),
 			_minTTL(-1),
 			_maxTTL(-1),
 			_particleSize(1.6f),
