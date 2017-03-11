@@ -91,6 +91,14 @@ void Game::LoadContent()
 	//the rotation speed of the particles
 	settings._rotationSpeed = 10;
 
+	//settings._emissionShape = new ParticleManager::EmissionRect(300, 50);
+	//settings._emissionShape = new ParticleManager::EmissionTriangle(Vector2(0,0), Vector2(0.5f,0), Vector2(0.5f,-0.2f), 100);
+	//settings._emissionShape = new ParticleManager::EmissionCircle(100);
+	//settings._emissionShape = new ParticleManager::EmissionRing(100, 150);
+	settings._emissionShape = new ParticleManager::EmissionPoint();
+
+	settings._startingDirection = new Vector2(0, -1);
+
 	_particleSys = ParticleManager(settings, _renderer);
 	
 

@@ -25,6 +25,178 @@ public:
 		float _durationOfColour;
 	};
 
+	class EmissionShape
+	{
+	public:
+		enum ShapeType
+		{
+			Point,
+			Rect,
+			Ring,
+			Circle,
+			Triangle
+		};
+
+		EmissionShape(ShapeType pType) : _shapeType(pType) {};
+		
+		virtual Vector2 GetPoint(Vector2 centre) = 0;
+
+		ShapeType _shapeType;
+	};
+
+	class EmissionPoint : public EmissionShape
+	{
+	public:
+		EmissionPoint()
+			:EmissionShape(Point)
+		{
+			
+		}
+
+		Vector2 GetPoint(Vector2 centre) override
+		{
+			return centre;
+		}
+	};
+	class EmissionRect : public EmissionShape
+	{
+	public:
+		EmissionRect(float pWidth, float pHeight)
+			:EmissionShape(Rect), _width(pWidth), _height(pHeight)
+		{
+
+		}
+
+		Vector2 GetPoint(Vector2 centre) override
+		{
+			float left = centre.x - _width / 2;
+			float top =  centre.y - _height / 2;
+
+			float randX = rand() % _width;
+			float randY = rand() % _height;
+
+			Vector2 randPoint = Vector2(left + randX, top + randY);
+
+			return randPoint;
+		}
+
+	private:
+		int _width;
+		int _height;
+	};
+
+	class EmissionRing : public EmissionShape
+	{
+	public:
+		EmissionRing(float pInsideRadius, float pOutsideRadius)
+			:EmissionShape(Ring), _insideRadius(pInsideRadius), _outsideRadius(pOutsideRadius)
+		{
+
+		}
+
+		Vector2 GetPoint(Vector2 centre) override
+		{
+
+			float angle = 2 * 3.14159f * getRandomLessThanOne();
+			float random = getRandomLessThanOne() + getRandomLessThanOne();
+
+			float randInRadius;
+
+			if (random > 1)
+				randInRadius = 2 - random;
+			else
+				randInRadius = random;
+
+
+			float betweenRadii = _insideRadius + (_outsideRadius - _insideRadius) * randInRadius;
+
+			Vector2 circlePos = Vector2(betweenRadii * cosf(angle), betweenRadii * sinf(angle));
+
+			return circlePos + centre;
+		}
+
+		float _insideRadius;
+		float _outsideRadius;
+	};
+
+	static float getRandomLessThanOne()
+	{
+		int scalar = 10000;
+		int random = rand() % scalar;
+
+		return static_cast<float>(random) / scalar;
+	}
+
+	class EmissionCircle : public EmissionShape
+	{
+	public:
+		EmissionCircle(float pRadius)
+			:EmissionShape(Circle), _radius(pRadius)
+		{
+		}
+
+		Vector2 GetPoint(Vector2 centre) override
+		{
+			float angle = 2 * 3.14159f * getRandomLessThanOne();
+			float random = getRandomLessThanOne() + getRandomLessThanOne();
+
+			float randInRadius;
+
+			if (random > 1)
+				randInRadius = 2 - random;
+			else
+				randInRadius = random;
+
+			Vector2 circlePos = Vector2(_radius * randInRadius * cosf(angle), _radius * randInRadius * sinf(angle));
+
+			return circlePos + centre;
+		}
+
+		float _radius;
+	};
+
+	class EmissionTriangle : public EmissionShape
+	{
+	public:
+
+		//the coords of the triangle should be normalised (all verts between 0,0 and 1,1)
+		EmissionTriangle(Vector2 pVert1, Vector2 pVert2, Vector2 pVert3, float pScale)
+			:EmissionShape(Triangle), _scale(pScale)
+		{
+			_verts[0] = pVert1;
+			_verts[1] = pVert2;
+			_verts[2] = pVert3;
+
+			_centreOfTriangle = ((_verts[0] + _verts[1] + _verts[2]) / 3);
+
+			_centreOfTriangle = _centreOfTriangle * _scale;
+		}
+
+
+		Vector2 _verts[3];
+		float _scale;
+		Vector2 _centreOfTriangle;
+
+		Vector2 GetPoint(Vector2 centre) override
+		{
+			Vector2 u = _verts[1] - _verts[0];
+			Vector2 v = _verts[2] - _verts[0];
+
+
+			Vector2 random = Vector2(getRandomLessThanOne(), getRandomLessThanOne());
+
+			if (random.x + random.y > 1)
+				random = Vector2(1 - random.y, 1 - random.x);
+
+			Vector2 triVec = Vector2(random.x * u.x + random.y * v.x, random.y * u.y + random.y * v.y);
+
+			return centre + _centreOfTriangle + Vector2(-_scale / 2, _scale / 2) + (triVec * _scale);
+		}
+	};
+
+
+
+
 	/// <summary>
 	/// This is the settings that are passed to the constructor for the ParticleManager. The user can initialise any variable they want, or none at all. Any values not initialised will have default values.
 	/// </summary>
@@ -45,7 +217,9 @@ public:
 			_texture(nullptr),
 			_shapeType(Shape::ShapeType::Pentagon),
 			_coloursToLerp(std::vector<ColourLerper>()),
-			_rotationSpeed(0)
+			_rotationSpeed(0),
+			_emissionShape(nullptr),
+			_startingDirection(nullptr)
 		{
 
 		}
@@ -86,6 +260,9 @@ public:
 		/// </summary>
 		float _emissionRate;
 
+
+		Vector2 * _startingDirection;
+
 		/// <summary>
 		/// The difference in time to live values for the particles. 
 		/// Defualt Value:  0
@@ -121,6 +298,12 @@ public:
 		/// Defualt Value:  Pentagon
 		/// </summary>
 		Shape::ShapeType _shapeType;
+
+		/// <summary>
+		/// The shape of the emission. 
+		/// Defualt Value:  Point
+		/// </summary>
+		EmissionShape * _emissionShape;
 
 		/// <summary>
 		/// A vector of ColourLerper's. This contains all the colours your shapes will transition between. Does not apply to textures.
@@ -331,5 +514,9 @@ private:
 	/// The rotational speed of the particles once they are emitted
 	/// </summary>
 	float _rotationSpeed;
+
+	EmissionShape * _emissionShape;
+
+	Vector2 * _startingParticleDirection;
 };
 

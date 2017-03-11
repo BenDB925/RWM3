@@ -24,7 +24,9 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 	_currentVelocity(0, 0),
 	_timeSinceEmit(0),
 	_renderer(pRenderer),
-	_rotationSpeed(pSettings._rotationSpeed)
+	_rotationSpeed(pSettings._rotationSpeed),
+	_emissionShape(pSettings._emissionShape),
+	_startingParticleDirection(pSettings._startingDirection)
 {
 	if (_positionToParentTo == nullptr)
 		_positionToParentTo = new Vector2(300, 300);
@@ -58,6 +60,8 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 	_minTTL = timeToLiveTotal - pSettings._timeToLiveVariation;
 	_maxTTL = timeToLiveTotal;
 
+	if (_emissionShape == nullptr)
+		_emissionShape = new EmissionPoint();
 }
 
 
@@ -639,10 +643,28 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 	float randX = (static_cast<float>((rand() % 1000) / 1000.0f) * _particleVelVariation) - _particleVelVariation / 2;
 	float randY = (static_cast<float>((rand() % 1000) / 1000.0f) * _particleVelVariation) - _particleVelVariation / 2;
 
-	float xVel = (pDir.x - randX) * _startingVelocity;
-	float yVel = (pDir.y - randY) * _startingVelocity;
-	float endingXVel = (pDir.x - randX) * _endingVelocity;
-	float endingYVel = (pDir.y - randY) * _endingVelocity;
+
+	float xVel;
+	float yVel;
+	float endingXVel;
+	float endingYVel;
+
+	if (_startingParticleDirection == nullptr)
+	{
+		xVel = (pDir.x - randX) * _startingVelocity;
+		yVel = (pDir.y - randY) * _startingVelocity;
+
+		endingXVel = (pDir.x - randX) * _endingVelocity;
+		endingYVel = (pDir.y - randY) * _endingVelocity;
+	}
+	else
+	{
+		xVel = (_startingParticleDirection->x - randX) * _startingVelocity;
+		yVel = (_startingParticleDirection->y - randY) * _startingVelocity;
+
+		endingXVel = (_startingParticleDirection->x - randX) * _endingVelocity;
+		endingYVel = (_startingParticleDirection->y - randY) * _endingVelocity;
+	}
 
 	Vector2 startingVel = Vector2(xVel, yVel);
 	Vector2 endingVel = Vector2(endingXVel, endingYVel);
@@ -650,7 +672,11 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 	float timeToLive = (static_cast<float>((rand() % 1000) / 1000.0f) * (_maxTTL - _minTTL)) + _minTTL;
 	ParticleObj::ParticleObjSettings settings;
 
-	settings._position = _position;
+
+
+
+
+	settings._position = _emissionShape->GetPoint(_position);
 	settings._size = Vector2(_particleSize, _particleSize);
 	settings._startingVelocity = startingVel;
 	settings._endingVelocity = endingVel;
@@ -678,7 +704,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			vertPositions.push_back(Vector2(sizeModifier * 2 * _particleSize,	-sizeModifier * _particleSize));
 			vertPositions.push_back(Vector2(0			 * _particleSize,		 sizeModifier * _particleSize));
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Triangle, _renderer, rotSpeed);
+			shape = new Shape(settings._position, vertPositions, Shape::ShapeType::Triangle, _renderer, rotSpeed);
 
 			break;
 
@@ -690,7 +716,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			vertPositions.push_back(Vector2(sizeModifier		* _particleSize, sizeModifier  * _particleSize));
 			vertPositions.push_back(Vector2(-sizeModifier		* _particleSize, sizeModifier  * _particleSize));
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Square, _renderer, rotSpeed);
+			shape = new Shape(settings._position, vertPositions, Shape::ShapeType::Square, _renderer, rotSpeed);
 			break;
 
 		case Shape::Pentagon:
@@ -702,7 +728,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			vertPositions.push_back(Vector2(sizeModifier * 1     * _particleSize, sizeModifier * 3.1f	* -_particleSize));
 			vertPositions.push_back(Vector2(sizeModifier * -0.64f* _particleSize, sizeModifier * 2		* -_particleSize));
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Pentagon, _renderer, rotSpeed);
+			shape = new Shape(settings._position, vertPositions, Shape::ShapeType::Pentagon, _renderer, rotSpeed);
 			break;
 
 		case Shape::Star:
@@ -720,7 +746,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			vertPositions.push_back(Vector2(sizeModifier * 9		* _particleSize, sizeModifier * 5		* -_particleSize));
 
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Star, _renderer, rotSpeed);
+			shape = new Shape(settings._position, vertPositions, Shape::ShapeType::Star, _renderer, rotSpeed);
 			break;
 
 		case Shape::NULL_SHAPE:
@@ -743,7 +769,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			vertPositions.push_back(Vector2(sizeModifier * 1		* _particleSize, sizeModifier * 3.1f * -_particleSize));
 			vertPositions.push_back(Vector2(sizeModifier * -0.64f	* _particleSize, sizeModifier * 2	 * -_particleSize));
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Pentagon, _renderer, rotSpeed);
+			shape = new Shape(settings._position, vertPositions, Shape::ShapeType::Pentagon, _renderer, rotSpeed);
 
 
 			break;
@@ -765,7 +791,7 @@ void ParticleManager::SpawnParticle(Vector2 pDir)
 			vertPositions.push_back(Vector2(sizeModifier * 14		* _particleSize, sizeModifier		* 5.5f	* -_particleSize));
 			vertPositions.push_back(Vector2(sizeModifier * 9		* _particleSize, sizeModifier		* 5		* -_particleSize));
 
-			shape = new Shape(_position, vertPositions, Shape::ShapeType::Star, _renderer, rotSpeed);
+			shape = new Shape(settings._position, vertPositions, Shape::ShapeType::Star, _renderer, rotSpeed);
 
 
 			break;
