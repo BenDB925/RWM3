@@ -26,7 +26,9 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 	_renderer(pRenderer),
 	_rotationSpeed(pSettings._rotationSpeed),
 	_emissionShape(pSettings._emissionShape),
-	_startingParticleDirection(pSettings._startingDirection)
+	_startingParticleDirection(pSettings._startingDirection),
+	_startScale(pSettings._startScale),
+	_endScale(pSettings._endScale)
 {
 	if (_positionToParentTo == nullptr)
 		_positionToParentTo = new Vector2(300, 300);
@@ -43,11 +45,11 @@ ParticleManager::ParticleManager(ParticleSettings pSettings, SDL_Renderer * pRen
 
 		_colourLerpingList.push_back(white);
 
-		ColourLerper black = ColourLerper();
-		black._colour = { 0,0,0,255 };
-		black._durationOfColour = 2;
+		ColourLerper col2 = ColourLerper();
+		col2._colour = { 255,128,0,10 };
+		col2._durationOfColour = 2;
 
-		_colourLerpingList.push_back(black);
+		_colourLerpingList.push_back(col2);
 	}
 
 	float timeToLiveTotal = 0;
@@ -72,6 +74,8 @@ void ParticleManager::LoadPresets(SDL_Renderer * pRenderer)
 	_FOOTSTEPS_PRESET._emissionRate = 0.424f;
 	_FOOTSTEPS_PRESET._startingVelocity = 0;
 	_FOOTSTEPS_PRESET._endingVelocity = 0;
+	_FOOTSTEPS_PRESET._startScale = 1;
+	_FOOTSTEPS_PRESET._endScale = 1;
 	_FOOTSTEPS_PRESET._shapeType = Shape::Footsteps;
 	_FOOTSTEPS_PRESET._texture = TextureLoader::loadTexture("assets/footsteps.png", pRenderer);
 
@@ -81,6 +85,8 @@ void ParticleManager::LoadPresets(SDL_Renderer * pRenderer)
 	_ROCKET_THRUSTER_PRESET._startingVelocity = 150;
 	_ROCKET_THRUSTER_PRESET._endingVelocity = 0;
 	_ROCKET_THRUSTER_PRESET._velVariation = 0.5f;
+	_ROCKET_THRUSTER_PRESET._startScale = 1;
+	_ROCKET_THRUSTER_PRESET._endScale = 4;
 	_ROCKET_THRUSTER_PRESET._shapeType = Shape::RocketThruster;
 
 	_ROCKET_THRUSTER_PRESET._coloursToLerp.clear();
@@ -99,6 +105,8 @@ void ParticleManager::LoadPresets(SDL_Renderer * pRenderer)
 	_TRON_PRESET._velVariation = 0.0f;
 	_TRON_PRESET._minTTL = 4;
 	_TRON_PRESET._maxTTL = 4;
+	_TRON_PRESET._startScale = 1;
+	_TRON_PRESET._endScale = 0.3f;
 	_TRON_PRESET._shapeType = Shape::Tron;
 	_TRON_PRESET._texture = TextureLoader::loadTexture("assets/laser.png", pRenderer);
 
@@ -150,9 +158,20 @@ void ParticleManager::update(float pDT)
 		}
 	}
 
+
 	for (int i = 0; i < _particleList.size(); i++)
 	{
-		_particleList[i]->update(pDT);
+
+		float scale;
+		if (_startScale != 1 || _endScale != 1)
+		{
+			scale = _startScale + (_particleList[i]->_timeAlive / _particleList[i]->_timeToLive) * (_endScale - _startScale);
+		}
+		else
+			scale = 1;
+
+
+		_particleList[i]->update(pDT, scale);
 
 		if (_particleList[i]->readyToRespawn())
 		{
@@ -233,7 +252,8 @@ void ParticleManager::SetUpRocketThruster()
 	_startingVelocity = _ROCKET_THRUSTER_PRESET._startingVelocity;
 	_endingVelocity = _ROCKET_THRUSTER_PRESET._endingVelocity;
 	_particleSize = _ROCKET_THRUSTER_PRESET._particleSize;
-
+	_endScale = _ROCKET_THRUSTER_PRESET._endScale;
+	_startScale = _ROCKET_THRUSTER_PRESET._startScale;
 
 	_colourLerpingList.clear();
 
@@ -287,6 +307,8 @@ void ParticleManager::SetupTron()
 	_endingVelocity = _TRON_PRESET._endingVelocity;
 	_minTTL = _TRON_PRESET._minTTL;
 	_maxTTL = _TRON_PRESET._maxTTL;
+	_startScale = _TRON_PRESET._startScale;
+	_endScale = _TRON_PRESET._endScale;
 }
 
 void ParticleManager::SetUpStarPreset()
@@ -301,6 +323,8 @@ void ParticleManager::SetUpStarPreset()
 	_minTTL = _STAR_PRESET._minTTL;
 	_maxTTL = _STAR_PRESET._maxTTL;
 	_particleVelVariation = _STAR_PRESET._velVariation;
+	_startScale = _STAR_PRESET._startScale;
+	_endScale = _STAR_PRESET._endScale;
 
 
 	_colourLerpingList.clear();
@@ -341,6 +365,8 @@ void ParticleManager::SetUpFootsteps()
 	_texture = TextureLoader::loadTexture("assets/footsteps.png", _renderer);
 	_startingVelocity = _FOOTSTEPS_PRESET._startingVelocity;
 	_endingVelocity = _FOOTSTEPS_PRESET._endingVelocity;
+	_startScale = _FOOTSTEPS_PRESET._startScale;
+	_endScale = _FOOTSTEPS_PRESET._endScale;
 }
 
 void ParticleManager::SetUpTexture()
@@ -351,6 +377,8 @@ void ParticleManager::SetUpTexture()
 	_startingVelocity = 150;
 	_endingVelocity = 20;
 	_particleSize = 4;
+	_startScale = 1;
+	_endScale = 5;
 }
 
 std::string ParticleManager::IncrementShapeType()

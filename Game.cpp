@@ -79,7 +79,7 @@ void Game::LoadContent()
 	//position of the particle manager
 	settings._positionToParentTo = _mousePos;
 	//initial velocity of the particles
-	settings._startingVelocity = 150;
+	settings._startingVelocity = 0;
 	//final velocity of the particles
 	settings._endingVelocity = 0;
 	//the time between particles being emitted
@@ -91,13 +91,15 @@ void Game::LoadContent()
 	//the rotation speed of the particles
 	settings._rotationSpeed = 10;
 
-	//settings._emissionShape = new ParticleManager::EmissionRect(300, 50);
-	//settings._emissionShape = new ParticleManager::EmissionTriangle(Vector2(0,0), Vector2(0.5f,0), Vector2(0.5f,-0.2f), 100);
-	//settings._emissionShape = new ParticleManager::EmissionCircle(100);
-	//settings._emissionShape = new ParticleManager::EmissionRing(100, 150);
+	//the shape of the emitter
 	settings._emissionShape = new ParticleManager::EmissionPoint();
 
-	settings._startingDirection = new Vector2(0, -1);
+
+	//the initial scale of the particles
+	settings._startScale = 0.3f;
+
+	//the final scale of the particles
+	settings._endScale = 3;
 
 	_particleSys = ParticleManager(settings, _renderer);
 	
@@ -119,11 +121,18 @@ void Game::LoadContent()
 	MenuManager::Instance()->AddItem(Vector2(1290, 0), to_string(_particleSys._colourLerpingList.at(1)._colour.g), &ParticleManager::ChangeEndingGColour,   &_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(1345, 0), to_string(_particleSys._colourLerpingList.at(1)._colour.b), &ParticleManager::ChangeEndingBColour,   &_particleSys);
 	MenuManager::Instance()->AddItem(Vector2(1400, 0), to_string(_particleSys._colourLerpingList.at(1)._colour.a), &ParticleManager::ChangeEndingAColour,   &_particleSys);
+
+	_emitorShapes.push_back(MenuItem(Vector2(700, 850), "Point", _renderer, &ParticleManager::ChangeParticleType, &_particleSys));
+	_emitorShapes.push_back(MenuItem(Vector2(700, 850), "Rectangle", _renderer, &ParticleManager::ChangeParticleType, &_particleSys));
+	_emitorShapes.push_back(MenuItem(Vector2(700, 850), "Circle", _renderer, &ParticleManager::ChangeParticleType, &_particleSys));
+	_emitorShapes.push_back(MenuItem(Vector2(700, 850), "Ring", _renderer, &ParticleManager::ChangeParticleType, &_particleSys));
+	_emitorShapes.push_back(MenuItem(Vector2(700, 850), "Triangle", _renderer, &ParticleManager::ChangeParticleType, &_particleSys));
 }
 
 void Game::Update()
 {
 	_frameCounter.update(_renderer);
+
 	_particleSys.update(_frameCounter._DT);
 
 	_timeSinceDirChange += _frameCounter._DT;
@@ -185,10 +194,37 @@ void Game::Render()
 	SDL_Rect menuRect{ 0, 0, 1440, 15 };
 	MenuManager::Instance()->Draw();
 
+	_emitorShapes[_emitorShapeIndex].Draw();
+
+
 	SDL_RenderCopy(_renderer, _menuTex, nullptr, &menuRect);
 	SDL_RenderPresent(_renderer);
 }
 
+void Game::FindParticleSystemShape()
+{
+	if (_particleSys._emissionShape != nullptr)
+		delete _particleSys._emissionShape;
+
+	switch (_emitorShapeIndex)
+	{
+	case 0:
+		_particleSys._emissionShape = new ParticleManager::EmissionPoint();
+		break;
+	case 1:
+		_particleSys._emissionShape = new ParticleManager::EmissionRect(450, 100);
+		break;
+	case 2:
+		_particleSys._emissionShape = new ParticleManager::EmissionCircle(100);
+		break;
+	case 3:
+		_particleSys._emissionShape = new ParticleManager::EmissionRing(100, 150);
+		break;
+	case 4:
+		_particleSys._emissionShape = new ParticleManager::EmissionTriangle(Vector2(0.2f, 0), Vector2(0.5f, -0.5f), Vector2(0.7f, 0), 200);
+		break;
+	}
+}
 
 void Game::HandleEvents()
 {
@@ -225,6 +261,18 @@ void Game::HandleEvents()
 					break;
 				case SDLK_DOWN:
 					MenuManager::Instance()->HandleInput(MenuManager::Input::Down);
+					break;
+				case SDLK_a:
+					_emitorShapeIndex--;
+					if (_emitorShapeIndex < 0)
+						_emitorShapeIndex = _EMITORSHAPECOUNT - 1;
+					FindParticleSystemShape();
+					break;
+				case SDLK_d:
+					_emitorShapeIndex++;
+					if (_emitorShapeIndex >= _EMITORSHAPECOUNT)
+						_emitorShapeIndex = 0;
+					FindParticleSystemShape();
 					break;
 
 				case SDLK_SPACE:

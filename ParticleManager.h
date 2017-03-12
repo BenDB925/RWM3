@@ -3,6 +3,7 @@
 #include "ParticleObj.h"
 #include "Shape.h"
 
+
 /// <summary>
 /// The particle manager is the only class the user should have to interact with. It contains all the particles in the system and is in charge of their creation, updates and rendering
 /// </summary>
@@ -25,9 +26,15 @@ public:
 		float _durationOfColour;
 	};
 
+	/// <summary>
+	/// this class represents the shape of the particle emitter.
+	/// </summary>
 	class EmissionShape
 	{
 	public:
+		/// <summary>
+		/// The different shape types
+		/// </summary>
 		enum ShapeType
 		{
 			Point,
@@ -39,11 +46,19 @@ public:
 
 		EmissionShape(ShapeType pType) : _shapeType(pType) {};
 		
+		/// <summary>
+		/// This will get a random point within the emitter
+		/// </summary>
+		/// <param name="centre"> the centre of the shape</param>
+		/// <returns>A vector2 indicating a random place in world coordinates that's in the shape</returns>
 		virtual Vector2 GetPoint(Vector2 centre) = 0;
 
 		ShapeType _shapeType;
 	};
 
+	/// <summary>
+	/// A point, all particles will come from this single coordinate
+	/// </summary>
 	class EmissionPoint : public EmissionShape
 	{
 	public:
@@ -58,6 +73,10 @@ public:
 			return centre;
 		}
 	};
+
+	/// <summary>
+	/// A rectangle
+	/// </summary>
 	class EmissionRect : public EmissionShape
 	{
 	public:
@@ -85,6 +104,9 @@ public:
 		int _height;
 	};
 
+	/// <summary>
+	/// A ring shaped particle emitter, with an area in the centre that particles won't spawn
+	/// </summary>
 	class EmissionRing : public EmissionShape
 	{
 	public:
@@ -115,7 +137,14 @@ public:
 			return circlePos + centre;
 		}
 
+		/// <summary>
+		/// the radius of the void in the middle
+		/// </summary>
 		float _insideRadius;
+
+		/// <summary>
+		/// the distance to the edge of the circle
+		/// </summary>
 		float _outsideRadius;
 	};
 
@@ -127,6 +156,9 @@ public:
 		return static_cast<float>(random) / scalar;
 	}
 
+	/// <summary>
+	/// A circle shaped emitter
+	/// </summary>
 	class EmissionCircle : public EmissionShape
 	{
 	public:
@@ -155,6 +187,9 @@ public:
 		float _radius;
 	};
 
+	/// <summary>
+	/// A triangular shaped emitter
+	/// </summary>
 	class EmissionTriangle : public EmissionShape
 	{
 	public:
@@ -167,9 +202,7 @@ public:
 			_verts[1] = pVert2;
 			_verts[2] = pVert3;
 
-			_centreOfTriangle = ((_verts[0] + _verts[1] + _verts[2]) / 3);
-
-			_centreOfTriangle = _centreOfTriangle * _scale;
+			_centreOfTriangle = Vector2(-0.5f, 0.5f) * _scale;
 		}
 
 
@@ -179,18 +212,18 @@ public:
 
 		Vector2 GetPoint(Vector2 centre) override
 		{
-			Vector2 u = _verts[1] - _verts[0];
-			Vector2 v = _verts[2] - _verts[0];
-
+			Vector2 a = _verts[0];
+			Vector2 ab = _verts[1] - _verts[0];
+			Vector2 ac = _verts[2] - _verts[0];
 
 			Vector2 random = Vector2(getRandomLessThanOne(), getRandomLessThanOne());
 
-			if (random.x + random.y > 1)
-				random = Vector2(1 - random.y, 1 - random.x);
+			if (random.x + random.y >= 1)
+				random = Vector2(1 - random.x, 1 - random.y);
 
-			Vector2 triVec = Vector2(random.x * u.x + random.y * v.x, random.y * u.y + random.y * v.y);
+			Vector2 triVec = a + (ab * random.x) + (ac * random.y);
 
-			return centre + _centreOfTriangle + Vector2(-_scale / 2, _scale / 2) + (triVec * _scale);
+			return centre + _centreOfTriangle + (triVec * _scale);
 		}
 	};
 
@@ -204,24 +237,25 @@ public:
 	{
 	public:
 		ParticleSettings()
-			:_positionToParentTo(nullptr),
-			_offsetFromParent(Vector2(0, 0)),
-			_startingVelocity(0),
-			_endingVelocity(0),
-			_velVariation(0.25f),
-			_emissionRate(0.02f),
-			_timeToLiveVariation(0),
-			_minTTL(-1),
-			_maxTTL(-1),
-			_particleSize(1.6f),
-			_texture(nullptr),
-			_shapeType(Shape::ShapeType::Pentagon),
-			_coloursToLerp(std::vector<ColourLerper>()),
-			_rotationSpeed(0),
-			_emissionShape(nullptr),
-			_startingDirection(nullptr)
+			: _positionToParentTo(nullptr),
+			  _offsetFromParent(Vector2(0, 0)),
+			  _startingVelocity(0),
+			  _endingVelocity(0),
+			  _velVariation(0.25f),
+			  _emissionRate(0.02f),
+			  _startingDirection(nullptr),
+			  _timeToLiveVariation(0),
+			  _minTTL(-1),
+			  _maxTTL(-1),
+			  _particleSize(1.6f),
+			  _texture(nullptr),
+			  _shapeType(Shape::ShapeType::Pentagon),
+			  _emissionShape(nullptr),
+			  _coloursToLerp(std::vector<ColourLerper>()),
+			  _rotationSpeed(0), 
+			  _startScale(1), 
+		      _endScale(1)
 		{
-
 		}
 
 		/// <summary>
@@ -260,7 +294,10 @@ public:
 		/// </summary>
 		float _emissionRate;
 
-
+		/// <summary>
+		/// The direction that particles will move off in, does not override the particleVelVariation, they will only move in this general direction if you set particleVelVariation to be > 0. If this is not set, the particles will move in the opposite direction to the emitter
+		/// Default Value:	not set
+		/// </summary>
 		Vector2 * _startingDirection;
 
 		/// <summary>
@@ -316,6 +353,16 @@ public:
 		/// Defualt Value:  0.0f
 		/// </summary>
 		float _rotationSpeed;
+
+		/// <summary>
+		/// The starting scale of the particle
+		/// </summary>
+		float _startScale;
+
+		/// <summary>
+		/// The final scale of the particle
+		/// </summary>
+		float _endScale;
 	};
 
 	/// <summary>
@@ -427,23 +474,24 @@ public:
 	float _particleSize;
 
 	/// <summary>
-	/// The ending velocity of the particles
+	/// The shape of the particles
 	/// </summary>
 	Shape::ShapeType _shapeType;
 
 	/// <summary>
-	/// This is a list holding the previous velocities, I use this to stop sudden changes to the particle emission direction, instead it's an average of the previous X velocities
+	/// The rotational speed of the particles once they are emitted
 	/// </summary>
-	std::vector<Vector2> _velocityList;
-
-private:
-	
+	float _rotationSpeed;
 
 	/// <summary>
-	/// This will create a particle, and initialise it's settings
+	/// The shape of the emitter
 	/// </summary>
-	/// <param name="pDir">the direction the particle should be moving in. This by default is the opposite direction of the particle manager</param>
-	void SpawnParticle(Vector2 pDir);
+	EmissionShape * _emissionShape;
+
+	/// <summary>
+	/// The direction that particles will move off in, does not override the particleVelVariation, they will only move in this general direction if you set particleVelVariation to be > 0. If this is not set, the particles will move in the opposite direction to the emitter
+	/// </summary>
+	Vector2 * _startingParticleDirection;
 
 	/// <summary>
 	/// The variation in velocity that the particles will spawn with. Modifiying this value will change the angle of the "cone" that the particles shoot off in
@@ -464,7 +512,7 @@ private:
 	/// The time in ms between the 
 	/// </summary>
 	float _emissionRate;
-	
+
 	/// <summary>
 	/// This holds the texture of the particles, if there is one.
 	/// </summary>
@@ -474,11 +522,6 @@ private:
 	/// Should the system spawn new particles? This is changed by calling the TurnOnOff() function
 	/// </summary>
 	bool _shouldSystemEmit;
-
-	/// <summary>
-	/// The list of particleObj's
-	/// </summary>
-	std::vector<ParticleObj *> _particleList;
 
 	/// <summary>
 	/// The position that the particle system will be attached to.
@@ -496,6 +539,36 @@ private:
 	Vector2 _offset;
 
 	/// <summary>
+	/// This is a list holding the previous velocities, I use this to stop sudden changes to the particle emission direction, instead it's an average of the previous X velocities
+	/// </summary>
+	std::vector<Vector2> _velocityList;
+
+	/// <summary>
+	/// The starting scale of the particle
+	/// </summary>
+	float _startScale;
+
+	/// <summary>
+	/// The final scale of the particle
+	/// </summary>
+	float  _endScale;
+
+private:
+
+
+	/// <summary>
+	/// This will create a particle, and initialise it's settings
+	/// </summary>
+	/// <param name="pDir">the direction the particle should be moving in. This by default is the opposite direction of the particle manager</param>
+	void SpawnParticle(Vector2 pDir);
+
+	
+	/// <summary>
+	/// The list of particleObj's
+	/// </summary>
+	std::vector<ParticleObj *> _particleList;
+
+	/// <summary>
 	/// The current velocity of the system. This is equal to the average of the previous 3 velocities.
 	/// </summary>
 	Vector2 _currentVelocity;
@@ -510,13 +583,5 @@ private:
 	/// </summary>
 	SDL_Renderer * _renderer;
 
-	/// <summary>
-	/// The rotational speed of the particles once they are emitted
-	/// </summary>
-	float _rotationSpeed;
-
-	EmissionShape * _emissionShape;
-
-	Vector2 * _startingParticleDirection;
 };
 

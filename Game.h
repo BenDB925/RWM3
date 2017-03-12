@@ -4,6 +4,7 @@
 #include "FramerateCounter.h"
 #include "ParticleManager.h"
 #include "Vector2.h"
+#include "MenuItem.h"
 
 class Game
 {
@@ -14,6 +15,7 @@ public:
 	void LoadContent();
 	void UnloadContent();
 	void Render();
+	void FindParticleSystemShape();
 	void Update();
 	void HandleEvents();
 	bool IsRunning();
@@ -43,5 +45,8 @@ private:
 	float _TIME_BEFORE_DIR_CHANGE = 0.15f;
 	const float _TRON_VEL = 2.5f;
 
+	std::vector<MenuItem> _emitorShapes;
+	int _emitorShapeIndex = 0;
+	const int _EMITORSHAPECOUNT = 5;
 };
 #endif

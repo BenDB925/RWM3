@@ -71,7 +71,7 @@ public:
 	/// The update function will move the particle, check it's time to live and find the particle's colour if it's a shape.
 	/// </summary>
 	/// <param name="pDT">The delta time. Required to be passed in as ms.</param>
-	void update(float pDT);
+	void update(float pDT, float pScale);
 
 	/// <summary>
 	/// If the particle should be respawned.
@@ -84,6 +84,19 @@ public:
 	/// </summary>
 	/// <param name="pRenderer">The renderer to draw to</param>
 	void render(SDL_Renderer* pRenderer);
+
+	void scale(float pValue);
+
+
+	/// <summary>
+	/// The total time this particle will be alive. Measured in ms.
+	/// </summary>
+	float _timeToLive;
+
+	/// <summary>
+	/// The time this particle has been alive. Measured in ms.
+	/// </summary>
+	float _timeAlive;
 
 private:
 
@@ -118,15 +131,6 @@ private:
 	/// </summary>
 	Vector2 _endingVelocity;
 
-	/// <summary>
-	/// The total time this particle will be alive. Measured in ms.
-	/// </summary>
-	float _timeToLive;
-
-	/// <summary>
-	/// The time this particle has been alive. Measured in ms.
-	/// </summary>
-	float _timeAlive;
 
 	/// <summary>
 	/// The current angle that the particle is at. Only used if the particle is displaying a shape, if this is particle is a texture, this won't be used. Measured in Euler.
@@ -142,4 +146,9 @@ private:
 	/// The shape of the particle. Will be nullptr if the system is using textures.
 	/// </summary>
 	Shape* _shape;
+
+	/// <summary>
+	/// this is the initial scale of the particle, without scaling
+	/// </summary>
+	Vector2 _normalScale;
 };
