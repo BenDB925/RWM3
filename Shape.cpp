@@ -7,6 +7,7 @@ Shape::Shape(Vector2 pPos, std::vector<Vector2> pVerts, ShapeType pType, SDL_Ren
 	:
 	_position(pPos),
 	_vertices(pVerts),
+	_fullScaleVerts(pVerts),
 	_angle(0),
 	_type(pType),
 	_renderer(pRenderer),
@@ -59,21 +60,30 @@ void Shape::Draw()
 		x[i] = _vertices.at(i).x + _position.x;
 		y[i] = _vertices.at(i).y + _position.y;
 	}
-	
+
 	filledPolygonRGBA(_renderer,
 		x,
 		y,
 		numVerts,
 		_colour.r, _colour.g, _colour.b, _colour.a);
-		
+
 	delete[] x;
 	delete[] y;
 }
 
-void Shape::Update(Vector2 _velocity, float pDT)
+void Shape::Update(Vector2 pVelocity, float pScale, float pDT)
 {
-	_position = _position + _velocity;
+	_position = _position + pVelocity;
 	Rotate(pDT);
+	Scale(pScale);
+}
+
+void Shape::Scale(float pValue)
+{
+	for (int i = 0; i < _vertices.size(); ++i)
+	{
+		_vertices[i] = _vertices[i].Normalize() * (_fullScaleVerts[i].Length() * pValue);
+	}
 }
 
 void Shape::Rotate(float pDT)

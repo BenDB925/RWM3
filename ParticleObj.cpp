@@ -20,8 +20,11 @@ ParticleObj::ParticleObj(ParticleObjSettings pSettings, ParticleManager & pParti
 	_rect.y = _position.y;
 	_rect.w = pSettings._size.x;
 	_rect.h = pSettings._size.y;
+
+	_normalScale = pSettings._size;
+
 	_angle = 0;
-	if(_shape == nullptr)
+	if (_shape == nullptr)
 	{
 		_angle = (atan2(pSettings._direction.y, pSettings._direction.x) * 180 / 3.1418f) - 90;
 	}
@@ -32,11 +35,11 @@ ParticleObj::~ParticleObj()
 	delete _shape;
 }
 
-void ParticleObj::update(float pDT)
+void ParticleObj::update(float pDT, float pScale)
 {
 	_timeAlive += pDT;
 
-	if(_timeAlive > _timeToLive)
+	if (_timeAlive > _timeToLive)
 		return;
 
 	//lerp velocity
@@ -52,8 +55,10 @@ void ParticleObj::update(float pDT)
 		if ((col.r == 0 && col.g == 0 && col.b == 0 && col.a == 0) == false)
 			_shape->SetColour(col);
 
-		_shape->Update(_currentVelocity * pDT, pDT);
+		_shape->Update(_currentVelocity * pDT, pScale, pDT);
 	}
+	else
+		scale(pScale);
 }
 
 bool ParticleObj::readyToRespawn() const
@@ -73,5 +78,14 @@ void ParticleObj::render(SDL_Renderer * pRenderer)
 	else
 	{
 		_shape->Draw();
+	}
+}
+
+void ParticleObj::scale(float pValue)
+{
+	if (_shape == nullptr)
+	{
+		_rect.w = _normalScale.x * pValue;
+		_rect.h = _normalScale.y * pValue;
 	}
 }

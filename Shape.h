@@ -51,7 +51,8 @@ public:
 	/// </summary>
 	/// <param name="pVelocity">The velocity the shape will move in</param>
 	/// <param name="pDT">The delta time</param>
-	void Update(Vector2 pVelocity, float pDT);
+	void Shape::Update(Vector2 pVelocity, float pScale, float pDT);
+	void Scale(float pValue);
 
 	/// <summary>
 	/// Rotate the shape
@@ -64,7 +65,7 @@ public:
 	/// </summary>
 	/// <param name="pColour">The new colour</param>
 	void SetColour(SDL_Color pColour);
-	
+
 	/// <summary>
 	/// The shape's position
 	/// </summary>
@@ -74,6 +75,11 @@ public:
 	/// the vector of vertex positions. These coordinates are in local form, so 0,0 is the object's centre.
 	/// </summary>
 	std::vector<Vector2> _vertices;
+
+	/// <summary>
+	/// normal scale vert positions
+	/// </summary>
+	std::vector<Vector2> _fullScaleVerts;
 
 	/// <summary>
 	/// the angle of the shape in euler
@@ -99,5 +105,7 @@ public:
 	/// how fast this shape will rotate
 	/// </summary>
 	float _rotSpeed;
+
+
 };
 
