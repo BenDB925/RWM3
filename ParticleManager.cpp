@@ -81,11 +81,11 @@ void ParticleManager::LoadPresets(SDL_Renderer * pRenderer)
 
 	_ROCKET_THRUSTER_PRESET = ParticleSettings();
 	_ROCKET_THRUSTER_PRESET._particleSize = 3;
-	_ROCKET_THRUSTER_PRESET._emissionRate = 0.003f;
+	_ROCKET_THRUSTER_PRESET._emissionRate = 0.002f;
 	_ROCKET_THRUSTER_PRESET._startingVelocity = 150;
 	_ROCKET_THRUSTER_PRESET._endingVelocity = 0;
 	_ROCKET_THRUSTER_PRESET._velVariation = 0.5f;
-	_ROCKET_THRUSTER_PRESET._startScale = 1;
+	_ROCKET_THRUSTER_PRESET._startScale = 0.25f;
 	_ROCKET_THRUSTER_PRESET._endScale = 4;
 	_ROCKET_THRUSTER_PRESET._shapeType = Shape::RocketThruster;
 
